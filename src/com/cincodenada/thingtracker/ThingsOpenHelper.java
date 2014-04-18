@@ -117,5 +117,9 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		public String getText() {
 			return data;
 		}
+
+		public String toString() {
+			return data;
+		}
 	}
 }
