@@ -5,7 +5,11 @@ import java.util.ArrayList;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.util.Log;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,10 +21,14 @@ import android.view.inputmethod.EditorInfo;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
+
 public class AddThing extends Activity {
 
     private ThingsOpenHelper dbHelper;
     private long curThingId = 0;
+    private Thing curThing = null;
+    private long prevThingId = 0;
     private ArrayList<ThingsOpenHelper.Thing> thingList;
     private ArrayAdapter<ThingsOpenHelper.Thing> thingArray;
 
@@ -35,7 +43,15 @@ public class AddThing extends Activity {
         thingList = new ArrayList<ThingsOpenHelper.Thing>();
         thingArray = new ArrayAdapter<ThingsOpenHelper.Thing>(AddThing.this,android.R.layout.simple_list_item_1,thingList);
         buttonBin.setAdapter(thingArray);
-
+        
+        buttonBin.setOnItemClickListener(new ListView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> list, View item, int pos, long id) {
+				Thing curThing = (Thing)list.getItemAtPosition(pos);
+				setCurThing(curThing.id);
+			}
+        });
+        
         dbHelper = new ThingsOpenHelper(AddThing.this);
         loadThings();
         
@@ -65,7 +81,15 @@ public class AddThing extends Activity {
             //Log.d("Fucker",curThing.toString());
             thingArray.add(curThing);
         }
+    	curThing = dbHelper.getThing(curThingId);
         //Log.d("Fucker",Integer.toString(thingArray.getCount()));
+    }
+    
+    protected void setCurThing(long newid) {
+    	prevThingId = curThingId;
+    	curThingId = newid;
+    	getActionBar().setDisplayHomeAsUpEnabled((newid != 0));
+		loadThings();
     }
 
     @Override
@@ -73,6 +97,16 @@ public class AddThing extends Activity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.add_thing, menu);
         return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    	switch(item.getItemId()) {
+    	case android.R.id.home:
+    		setCurThing(curThing.parent_id);
+    		return true;
+    	}
+    	return false;
     }
     
 }

@@ -86,7 +86,7 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 	}
 	
 	public ArrayList<Thing> getSubthings(long thing_id) {
-		String[] cols = {"ID","TYPE","DATA"};
+		String[] cols = {"ID","PARENT_ID","TYPE","DATA"};
 		String[] params = {Long.toString(thing_id)};
 		SQLiteDatabase db = this.getReadableDatabase();
 		Cursor res = db.query(THINGLIST_TABLE_NAME,cols,"PARENT_ID = ?",params,null,null,null,null);
@@ -107,8 +107,19 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		return ThingList;
 	}
 
+	public Thing getThing(long thing_id) {
+		if(thing_id == 0) { return null; }
+		String[] cols = {"ID","PARENT_ID","TYPE","DATA"};
+		String[] params = {Long.toString(thing_id)};
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor res = db.query(THINGLIST_TABLE_NAME,cols,"ID = ?",params,null,null,null,null);
+		res.moveToFirst();
+		return new Thing(res);
+	}
+
 	public class Thing {
 		long id;
+		long parent_id;
 		String type;
 		String data;
 		String description;
@@ -116,6 +127,7 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		
 		public Thing(Cursor cur) {
 			this.id = cur.getLong(cur.getColumnIndex("ID"));
+			this.parent_id = cur.getLong(cur.getColumnIndex("PARENT_ID"));
 			this.type = cur.getString(cur.getColumnIndex("TYPE"));
 			this.data = cur.getString(cur.getColumnIndex("DATA"));
 		}
