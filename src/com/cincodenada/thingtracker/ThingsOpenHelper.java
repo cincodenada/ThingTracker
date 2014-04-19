@@ -29,11 +29,16 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "PARENT_ID INTEGER DEFAULT NULL," +
                 "TYPE TEXT," +
+                "METADEF TEXT," +
+                "DESCRIPTION TEXT," +
                 "DATA TEXT);";
     private static final String HAPPENEDLIST_TABLE_CREATE =
             "CREATE TABLE " + HAPPENEDLIST_TABLE_NAME + " (" +
             "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
             "THING_ID INTEGER," +
+            "METADATA TEXT," +
+            "LAT FLOAT," +
+            "LON FLOAT," +
             "TIMESTAMP INTEGER);";
     
 	public ThingsOpenHelper(Context context) {
@@ -107,6 +112,7 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		String type;
 		String data;
 		String description;
+		JSONObject metadata;
 		
 		public Thing(Cursor cur) {
 			this.id = cur.getLong(cur.getColumnIndex("ID"));
