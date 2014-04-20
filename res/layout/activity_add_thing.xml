@@ -1,24 +1,25 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <ListView
+        android:id="@+id/button_bin"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1" >
+
+    </ListView>
+
     <EditText
         android:id="@+id/button_add"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:hint="Add New"
-        android:inputType="textAutoCorrect"
         android:imeOptions="actionGo"
-        android:layout_alignParentBottom="true"
+        android:inputType="textAutoCorrect"
         tools:ignore="HardcodedText" >
     </EditText>
 
-    <ListView
-        android:id="@+id/button_bin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" >
-    </ListView>
-
-</RelativeLayout>
+</LinearLayout>

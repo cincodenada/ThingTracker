@@ -62,9 +62,18 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 	public long addTextThing(String text, long parent_id) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		ContentValues values = new ContentValues();
+		String metadefval = "";
+		try {
+			JSONObject metadef = new JSONObject();
+			metadef.put("Description", "text");
+			metadefval = metadef.toString();
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
         values.put("PARENT_ID", parent_id);
 		values.put("TYPE", "text");
 		values.put("DATA", text);
+		values.put("METADEF",metadefval);
 		return db.insert(THINGLIST_TABLE_NAME, null, values);
 	}
 	
@@ -86,10 +95,13 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 	}
 	
 	public ArrayList<Thing> getSubthings(long thing_id) {
-		String[] cols = {"ID","PARENT_ID","TYPE","DATA"};
 		String[] params = {Long.toString(thing_id)};
 		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor res = db.query(THINGLIST_TABLE_NAME,cols,"PARENT_ID = ?",params,null,null,null,null);
+		Cursor res = db.rawQuery(
+				"SELECT t.*, COUNT(st.id) AS numchildren FROM " + THINGLIST_TABLE_NAME + " t " +
+				"LEFT JOIN " + THINGLIST_TABLE_NAME + " st ON st.PARENT_ID = t.ID " +
+				"WHERE t.PARENT_ID = ? " +
+				"GROUP BY t.ID", params);
 		return getThingsFromCursor(res);
 	}
 	
@@ -109,10 +121,13 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 
 	public Thing getThing(long thing_id) {
 		if(thing_id == 0) { return null; }
-		String[] cols = {"ID","PARENT_ID","TYPE","DATA"};
 		String[] params = {Long.toString(thing_id)};
 		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor res = db.query(THINGLIST_TABLE_NAME,cols,"ID = ?",params,null,null,null,null);
+		Cursor res = db.rawQuery(
+				"SELECT t.*, COUNT(st.id) AS numchildren FROM " + THINGLIST_TABLE_NAME + " t " +
+				"LEFT JOIN " + THINGLIST_TABLE_NAME + " st ON st.PARENT_ID = t.ID " +
+				"WHERE t.ID = ? " +
+				"GROUP BY t.ID", params);
 		res.moveToFirst();
 		return new Thing(res);
 	}
@@ -120,20 +135,32 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 	public class Thing {
 		long id;
 		long parent_id;
+		long num_children;
 		String type;
 		String data;
 		String description;
-		JSONObject metadata;
+		JSONObject metadef;
 		
 		public Thing(Cursor cur) {
+			Log.d("Fucker",StringUtils.join(",",cur.getColumnNames()));
 			this.id = cur.getLong(cur.getColumnIndex("ID"));
 			this.parent_id = cur.getLong(cur.getColumnIndex("PARENT_ID"));
 			this.type = cur.getString(cur.getColumnIndex("TYPE"));
 			this.data = cur.getString(cur.getColumnIndex("DATA"));
+			this.num_children = cur.getInt(cur.getColumnIndex("numchildren"));
+			try {
+				this.metadef = new JSONObject(cur.getString(cur.getColumnIndex("METADEF")));
+			} catch (JSONException e) {
+				this.metadef = new JSONObject();
+			}
 		}
 		
 		public String getText() {
 			return data;
+		}
+		
+		public boolean hasChildren() {
+			return (num_children > 0);
 		}
 
 		public String toString() {
