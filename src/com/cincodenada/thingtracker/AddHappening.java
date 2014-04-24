@@ -5,11 +5,12 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
 import org.apache.commons.math3.analysis.UnivariateFunction;
-
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -21,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,24 +39,30 @@ public class AddHappening extends Activity {
 	
     private ThingsOpenHelper dbHelper;
 	private Thing targetThing;
+	private TimeSlider timeSel;
 
+	HashMap<String,View> fieldMap;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_happening);
 		
 		dbHelper = new ThingsOpenHelper(AddHappening.this);
-		
+
+		findViewById(R.id.happening_save).setOnClickListener(saveButtonListener);
+				
 		Long thing_id = getIntent().getLongExtra(ARG_THING_ID, 0);
 		targetThing = dbHelper.getThing(thing_id);
 		
 		Iterator<String> keyIter = targetThing.metadef.keys();
 		LinearLayout fieldBucket = (LinearLayout) findViewById(R.id.happening_fields);
 		
-		TimeSlider timeSel = new TimeSlider((SeekBar) findViewById(R.id.happening_seeker));
+		timeSel = new TimeSlider((SeekBar) findViewById(R.id.happening_seeker));
 		
 		String curKey, curVal;
 		TextView curLabel;
+		fieldMap = new HashMap<String,View>();
 		while(keyIter.hasNext()) {
 			curKey = keyIter.next();
 			try {
@@ -68,6 +76,7 @@ public class AddHappening extends Activity {
 			
 			EditText curField = new EditText(AddHappening.this);
 			fieldBucket.addView(curField);
+			fieldMap.put(curKey, curField);
 		}
 	}
 
@@ -90,6 +99,30 @@ public class AddHappening extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
+	
+	
+	protected OnClickListener saveButtonListener = new OnClickListener() {
+		public void onClick(View v) {
+			ThingsOpenHelper dbHelper = new ThingsOpenHelper(AddHappening.this);
+			JSONObject metadata = new JSONObject();
+			View curField;
+			for(String curKey: fieldMap.keySet()) {
+				curField = fieldMap.get(curKey);
+				try {
+					switch(curField.getClass().getName()) {
+					case "EditText":
+							metadata.put(curKey, ((EditText)curField).getText());
+						break;
+					default:
+					}
+				} catch (JSONException e) {
+					Log.e("ThingTracker","Failed to parse field!");
+				}
+			}
+	        dbHelper.addHappening(targetThing.id, timeSel.getTime(), metadata);
+	        AddHappening.this.finish();
+		}
+	};
 	
 	public class TimeSlider {
 		protected SeekBar slider;
@@ -157,8 +190,8 @@ public class AddHappening extends Activity {
 			}
 		};
 		
-		public Calendar getTime() {
-			return curTime;
+		public long getTime() {
+			return curTime.getTimeInMillis()/1000;
 		}
 		
 		public void updateText(Calendar time) {

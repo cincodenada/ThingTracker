@@ -86,6 +86,15 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		return db.insert(HAPPENEDLIST_TABLE_NAME, null, values);
 	}
 
+	public long addHappening(long thing_id, long when, JSONObject metadata) {
+		SQLiteDatabase db = this.getReadableDatabase();
+		ContentValues values = new ContentValues();
+		values.put("THING_ID",thing_id);
+		values.put("TIMESTAMP",when);
+		values.put("METADATA",metadata.toString());
+		return db.insert(HAPPENEDLIST_TABLE_NAME, null, values);
+	}
+
 	public long addThingWithHappening(String text, long parent_id, long when) {
 		long thing_id = addTextThing(text, parent_id);
 		if(thing_id == -1) {

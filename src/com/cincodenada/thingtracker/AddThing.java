@@ -49,7 +49,7 @@ public class AddThing extends Activity {
         Log.v("Fucker","Yep, I'm here");
         
         ListView buttonBin = (ListView) findViewById(R.id.button_bin);
-        thingList = new ArrayList<ThingsOpenHelper.Thing>();
+        thingList = new ArrayList<Thing>();
         thingArray = new ThingListAdapter(AddThing.this,R.layout.thing_button,thingList);
         buttonBin.setAdapter(thingArray);
         
