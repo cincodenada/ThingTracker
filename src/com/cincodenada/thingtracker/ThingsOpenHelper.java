@@ -24,7 +24,7 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 	private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "thingDB";
     private static final String THINGLIST_TABLE_NAME = "things";
-    private static final String HAPPENEDLIST_TABLE_NAME = "happenings";
+    private static final String HAPPENINGLIST_TABLE_NAME = "happenings";
     private static final String THINGLIST_TABLE_CREATE =
                 "CREATE TABLE " + THINGLIST_TABLE_NAME + " (" +
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -33,8 +33,8 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
                 "METADEF TEXT," +
                 "DESCRIPTION TEXT," +
                 "DATA TEXT);";
-    private static final String HAPPENEDLIST_TABLE_CREATE =
-            "CREATE TABLE " + HAPPENEDLIST_TABLE_NAME + " (" +
+    private static final String HAPPENINGLIST_TABLE_CREATE =
+            "CREATE TABLE " + HAPPENINGLIST_TABLE_NAME + " (" +
             "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
             "THING_ID INTEGER," +
             "METADATA TEXT," +
@@ -51,7 +51,7 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 	public void onCreate(SQLiteDatabase db) {
 		// TODO Auto-generated method stub
 		db.execSQL(THINGLIST_TABLE_CREATE);
-		db.execSQL(HAPPENEDLIST_TABLE_CREATE);
+		db.execSQL(HAPPENINGLIST_TABLE_CREATE);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		ContentValues values = new ContentValues();
 		values.put("THING_ID",thing_id);
 		values.put("TIMESTAMP",when);
-		return db.insert(HAPPENEDLIST_TABLE_NAME, null, values);
+		return db.insert(HAPPENINGLIST_TABLE_NAME, null, values);
 	}
 
 	public long addHappening(long thing_id, long when, JSONObject metadata) {
@@ -92,7 +92,7 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		values.put("THING_ID",thing_id);
 		values.put("TIMESTAMP",when);
 		values.put("METADATA",metadata.toString());
-		return db.insert(HAPPENEDLIST_TABLE_NAME, null, values);
+		return db.insert(HAPPENINGLIST_TABLE_NAME, null, values);
 	}
 
 	public long addThingWithHappening(String text, long parent_id, long when) {
@@ -102,6 +102,19 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		} else {
 			return addHappening(thing_id, when);
 		}
+	}
+	
+	public ArrayList<Happening> getHappenings(long thing_id) {
+		String[] params = {Long.toString(thing_id)};
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor cur = db.query(HAPPENINGLIST_TABLE_NAME,null,"THING_ID = ?",params, null, null, null);
+		ArrayList<Happening> HappeningList = new ArrayList<Happening>();
+        if(cur.moveToFirst()) {
+            do {
+                HappeningList.add(new Happening(cur));
+            } while(cur.moveToNext());
+        }
+		return HappeningList;
 	}
 	
 	public ArrayList<Thing> getSubthings(long thing_id) {
@@ -152,7 +165,6 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		JSONObject metadef;
 		
 		public Thing(Cursor cur) {
-			Log.d("Fucker",StringUtils.join(",",cur.getColumnNames()));
 			this.id = cur.getLong(cur.getColumnIndex("ID"));
 			this.parent_id = cur.getLong(cur.getColumnIndex("PARENT_ID"));
 			this.type = cur.getString(cur.getColumnIndex("TYPE"));
@@ -175,6 +187,31 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 
 		public String toString() {
 			return data;
+		}
+	}
+	
+	public class Happening {
+		public long id;
+		public long thing_id;
+		public long timestamp;
+		public JSONObject metadata;
+		public DateFormat df;
+		
+		public Happening(Cursor cur) {
+			this.id = cur.getLong(cur.getColumnIndex("ID"));
+			this.thing_id = cur.getLong(cur.getColumnIndex("THING_ID"));
+			this.timestamp = cur.getInt(cur.getColumnIndex("TIMESTAMP"));
+			try {
+				this.metadata = new JSONObject(cur.getString(cur.getColumnIndex("METADATA")));
+			} catch (JSONException e) {
+				this.metadata = new JSONObject();
+			}
+			
+			df = DateFormat.getDateTimeInstance();
+		}
+		
+		public String toString() {
+			return df.format(new Date(this.timestamp*1000));
 		}
 	}
 }

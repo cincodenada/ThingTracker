@@ -113,6 +113,12 @@ public class AddThing extends Activity {
 		startActivity(happeningIntent);
     }
 
+    protected void viewHappenings(long thingId) {
+		Intent happeningIntent = new Intent(this, ViewHappenings.class);
+		happeningIntent.putExtra(ViewHappenings.ARG_THING_ID, thingId);
+		startActivity(happeningIntent);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -160,6 +166,9 @@ public class AddThing extends Activity {
             	return true;
             case R.id.mnu_thing_add_happening:
             	getHappening(selThing.id);
+            	return true;
+            case R.id.mnu_thing_happenings:
+            	viewHappenings(selThing.id);
             	return true;
             case R.id.mnu_thing_delete:
             default:

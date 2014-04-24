@@ -26,6 +26,10 @@
             android:name="com.cincodenada.thingtracker.AddHappening"
             android:label="@string/title_activity_add_happening" >
         </activity>
+        <activity
+            android:name="com.cincodenada.thingtracker.ViewHappenings"
+            android:label="@string/title_activity_view_happenings" >
+        </activity>
     </application>
 
 </manifest>

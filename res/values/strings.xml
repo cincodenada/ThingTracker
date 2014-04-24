@@ -3,13 +3,16 @@
 
     <string name="app_name">Thing Tracker</string>
     <string name="add_happening">Add Happening</string>
-    <string name="action_settings">Settings</string><string name="delete">Delete</string>
+    <string name="action_settings">Settings</string>
+    <string name="delete">Delete</string>
     <string name="add_child">Add Child</string>
     <string name="save">Save</string>
     <string name="title_thing_list">Things</string>
     <string name="title_thing_detail">Thing Detail</string>
     <string name="title_activity_add_happening">Add Happening</string>
     <string name="spacer">" "</string>
-    
+    <string name="view_happenings">View Happenings</string>
+    <string name="title_activity_view_happenings">View Happenings</string>
+    <string name="hello_world">Hello world!</string>
 
 </resources>

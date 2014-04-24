@@ -200,3 +200,4 @@ public class AddHappening extends Activity {
 		}
 	}
 }
+ 

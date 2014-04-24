@@ -4,6 +4,7 @@
     <item android:id="@+id/mnu_thing_delete" android:menuCategory="alternative" android:title="@string/delete"></item>
     <group android:id="@+id/mnu_group_haschildren"><item android:id="@+id/mnu_thing_add_happening" android:menuCategory="alternative" android:title="@string/add_happening"></item></group>
     <group android:id="@+id/mnu_group_nochildren"><item android:id="@+id/mnu_thing_add_child" android:menuCategory="alternative" android:title="@string/add_child"></item></group>
+    <item android:id="@+id/mnu_thing_happenings" android:menuCategory="alternative" android:title="@string/view_happenings"></item>
     
     
 
