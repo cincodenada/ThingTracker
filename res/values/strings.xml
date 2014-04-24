@@ -9,6 +9,7 @@
     <string name="title_thing_list">Things</string>
     <string name="title_thing_detail">Thing Detail</string>
     <string name="title_activity_add_happening">Add Happening</string>
+    <string name="spacer">" "</string>
     
 
 </resources>

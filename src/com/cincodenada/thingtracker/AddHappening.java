@@ -1,19 +1,31 @@
 package com.cincodenada.thingtracker;
 
 import java.util.Iterator;
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+
+import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
+import org.apache.commons.math3.analysis.UnivariateFunction;
 
 import org.json.JSONException;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.os.Build;
 
@@ -38,6 +50,9 @@ public class AddHappening extends Activity {
 		
 		Iterator<String> keyIter = targetThing.metadef.keys();
 		LinearLayout fieldBucket = (LinearLayout) findViewById(R.id.happening_fields);
+		
+		TimeSlider timeSel = new TimeSlider((SeekBar) findViewById(R.id.happening_seeker));
+		
 		String curKey, curVal;
 		TextView curLabel;
 		while(keyIter.hasNext()) {
@@ -53,7 +68,7 @@ public class AddHappening extends Activity {
 			
 			EditText curField = new EditText(AddHappening.this);
 			fieldBucket.addView(curField);
-		}		
+		}
 	}
 
 	@Override
@@ -74,5 +89,81 @@ public class AddHappening extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	public class TimeSlider {
+		protected SeekBar slider;
+		
+		protected DateFormat dfDate;
+		protected DateFormat dfTime;
+		TextView timeButton;
+		TextView dateButton;
+		
+		protected Calendar baseTime;
+		protected Calendar curTime;
+		protected long seekCenter;
+		
+		protected double scaleunit = 60*60*24;
+		
+		public TimeSlider(SeekBar slider) {
+			this.slider = slider;
+			//Set up time/date
+			this.baseTime = Calendar.getInstance();
+			Calendar startTime = (Calendar)this.baseTime.clone();
+			Calendar endTime = (Calendar)this.baseTime.clone();
+			startTime.add(Calendar.YEAR, -1);
+			endTime.add(Calendar.YEAR, 1);
+			
+			this.dfDate = DateFormat.getDateInstance();
+			this.dfTime = DateFormat.getTimeInstance();
+
+			this.timeButton = (TextView) findViewById(R.id.happening_time);
+			this.dateButton = (TextView) findViewById(R.id.happening_date);
+			
+			//Why doesn't compareTo work like I want it to?  int limits, maybe?
+			long timespan = (endTime.getTimeInMillis() - startTime.getTimeInMillis())/1000;
+			
+			this.slider.setMax((int)(Math.sqrt(timespan/scaleunit/2)*scaleunit));
+			this.slider.setProgress(slider.getMax()/2);
+			this.slider.setOnSeekBarChangeListener(seekBarChanged);
+			
+			this.curTime = (Calendar) this.baseTime.clone();
+			
+			updateText(curTime);
+		}
+		
+		private SeekBar.OnSeekBarChangeListener seekBarChanged = new SeekBar.OnSeekBarChangeListener() {
+			@Override
+			public void onStopTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onStartTrackingTouch(SeekBar seekBar) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void onProgressChanged(SeekBar seekBar, int progress,
+					boolean fromUser) {
+				curTime.setTime(baseTime.getTime());
+				int seekCenter = slider.getMax()/2;
+				int sign = (seekBar.getProgress() < seekCenter) ? -1 : 1;
+				curTime.add(Calendar.SECOND, sign*(int)(Math.pow((seekBar.getProgress() - seekCenter)/scaleunit,2)*scaleunit));
+				
+				updateText(curTime);
+			}
+		};
+		
+		public Calendar getTime() {
+			return curTime;
+		}
+		
+		public void updateText(Calendar time) {
+			this.timeButton.setText(this.dfTime.format(time.getTime()));
+			this.dateButton.setText(this.dfDate.format(time.getTime()));
+		}
 	}
 }
