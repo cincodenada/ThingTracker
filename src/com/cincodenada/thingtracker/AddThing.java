@@ -27,6 +27,7 @@ import android.widget.ListView;
 import android.widget.ArrayAdapter;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,8 +46,6 @@ public class AddThing extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_thing);
-        
-        Log.v("Fucker","Yep, I'm here");
         
         ListView buttonBin = (ListView) findViewById(R.id.button_bin);
         thingList = new ArrayList<Thing>();
@@ -75,15 +74,21 @@ public class AddThing extends Activity {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
-                if(actionId == EditorInfo.IME_NULL) {
-	                Log.v("Fucker",v.getText().toString());
-	                dbHelper.addTextThing(v.getText().toString(),curThingId);
-	                loadThings();
-	
-	                if(event != null) {
-	                	Log.v("Fucker",event.toString());
-	                }
-	                Log.v("Fucker",Integer.toString(actionId));
+                if(actionId == EditorInfo.IME_NULL && v.getText() != null) {
+                    Log.v("Fucker",v.getText().toString());
+                    Log.v("Fucker","Adding text thing");
+                    Log.v("Fucker",Integer.toString(actionId));
+                    dbHelper.addTextThing(v.getText().toString(),curThingId);
+                    loadThings();
+                    
+                    //Clear the text, clear focus, hide keyboard
+                    v.clearFocus();
+                    v.setText("");
+                    InputMethodManager imm = (InputMethodManager)getSystemService(
+                        Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    
+                    handled = true;
                 }
                 return handled;
             }
@@ -105,6 +110,11 @@ public class AddThing extends Activity {
     	curThingId = newid;
     	getActionBar().setDisplayHomeAsUpEnabled((newid != 0));
 		loadThings();
+    }
+    
+    protected void deleteThing(long thingId) {
+    	dbHelper.deleteThing(thingId);
+    	loadThings();
     }
     
     protected void getHappening(long thingId) {
@@ -171,10 +181,21 @@ public class AddThing extends Activity {
             	viewHappenings(selThing.id);
             	return true;
             case R.id.mnu_thing_delete:
+            	deleteThing(selThing.id);
+            	return true;
             default:
                 return super.onContextItemSelected(item);
         }
-    }    
+    }
+    
+    @Override
+    public void onBackPressed() {
+        if(curThing != null && curThing.id > 0) {
+            setCurThing(curThing.parent_id);
+        } else {
+            super.onBackPressed();
+        }
+    }
     
     class ThingListAdapter extends ArrayAdapter<Thing> {
     	private LayoutInflater myInflater;

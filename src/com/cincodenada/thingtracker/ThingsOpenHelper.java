@@ -154,6 +154,16 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		res.moveToFirst();
 		return new Thing(res);
 	}
+	
+	public boolean deleteThing(long thing_id) {
+		if(thing_id == 0) { return false; }
+		String[] params = {Long.toString(thing_id)};
+		SQLiteDatabase db = this.getReadableDatabase();
+		boolean success = true;
+		success = success && (db.delete(THINGLIST_TABLE_NAME,"id = ?",params) > 0);
+		//success = success && (db.delete(HAPPENINGLIST_TABLE_NAME,"thing_id = ?",params) > 0);
+		return success;
+	}
 
 	public class Thing {
 		long id;
