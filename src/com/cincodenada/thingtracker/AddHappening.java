@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -62,6 +63,7 @@ public class AddHappening extends Activity {
 		
 		String curKey, curVal;
 		TextView curLabel;
+		View curField;
 		fieldMap = new HashMap<String,View>();
 		while(keyIter.hasNext()) {
 			curKey = keyIter.next();
@@ -70,13 +72,24 @@ public class AddHappening extends Activity {
 			} catch (JSONException e) {
 				continue;
 			}
-			curLabel = new TextView(AddHappening.this);
-			curLabel.setText(curKey);
-			fieldBucket.addView(curLabel);
-			
-			EditText curField = new EditText(AddHappening.this);
-			fieldBucket.addView(curField);
-			fieldMap.put(curKey, curField);
+
+			switch(curVal) {
+			case "yesno":
+				curField = new CheckBox(AddHappening.this);
+				((CheckBox)curField).setText(curKey);
+				fieldBucket.addView(curField);
+				fieldMap.put(curKey, curField);
+				break;
+			case "text":
+			default:
+				curLabel = new TextView(AddHappening.this);
+				curLabel.setText(curKey);
+				fieldBucket.addView(curLabel);
+				
+				curField = new EditText(AddHappening.this);
+				fieldBucket.addView(curField);
+				fieldMap.put(curKey, curField);
+			}
 		}
 	}
 
@@ -111,7 +124,10 @@ public class AddHappening extends Activity {
 				try {
 					switch(curField.getClass().getName()) {
 					case "EditText":
-							metadata.put(curKey, ((EditText)curField).getText());
+						metadata.put(curKey, ((EditText)curField).getText());
+						break;
+					case "CheckBox":
+						metadata.put(curKey, ((CheckBox)curField).isChecked());
 						break;
 					default:
 					}

@@ -14,5 +14,9 @@
     <string name="view_happenings">View Happenings</string>
     <string name="title_activity_view_happenings">View Happenings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="edit_thing">Edit Thing Fields</string>
+    <string name="title_activity_edit_thing">EditThing</string>
+    <string name="thing_name">Thing Name</string>
+    <string name="thing_metadata">Thing Metadata</string>
 
 </resources>

@@ -78,6 +78,16 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		return db.insert(THINGLIST_TABLE_NAME, null, values);
 	}
 	
+	public long saveThing(Long id, String text, String metadef) {
+		String[] params = {Long.toString(id)};
+		SQLiteDatabase db = this.getReadableDatabase();
+		ContentValues values = new ContentValues();
+		String metadefval = metadef.toString();
+		values.put("DATA", text);
+		values.put("METADEF",metadefval);
+		return db.update(THINGLIST_TABLE_NAME, values, "ID = ?", params);
+	}
+	
 	public long addHappening(long thing_id, long when) {
 		SQLiteDatabase db = this.getReadableDatabase();
 		ContentValues values = new ContentValues();

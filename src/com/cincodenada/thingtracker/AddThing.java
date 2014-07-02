@@ -129,6 +129,11 @@ public class AddThing extends Activity {
 		startActivity(happeningIntent);
     }
 
+    protected void editThing(long thingId) {
+		Intent editThingIntent = new Intent(this, EditThing.class);
+		editThingIntent.putExtra(EditThing.ARG_THING_ID, thingId);
+		startActivity(editThingIntent);
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -182,6 +187,9 @@ public class AddThing extends Activity {
             	return true;
             case R.id.mnu_thing_delete:
             	deleteThing(selThing.id);
+            	return true;
+            case R.id.mnu_thing_edit_thing:
+            	editThing(selThing.id);
             	return true;
             default:
                 return super.onContextItemSelected(item);

@@ -30,6 +30,14 @@
             android:name="com.cincodenada.thingtracker.ViewHappenings"
             android:label="@string/title_activity_view_happenings" >
         </activity>
+        <activity
+            android:name="com.cincodenada.thingtracker.EditThing"
+            android:label="@string/title_activity_edit_thing"
+            android:parentActivityName="com.cincodenada.thingtracker.AddThing" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.cincodenada.thingtracker.AddThing" />
+        </activity>
     </application>
 
 </manifest>
