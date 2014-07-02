@@ -121,15 +121,12 @@ public class AddHappening extends Activity {
 			View curField;
 			for(String curKey: fieldMap.keySet()) {
 				curField = fieldMap.get(curKey);
+				Log.d("ThingTracker","Saving field: " + curKey);
 				try {
-					switch(curField.getClass().getName()) {
-					case "EditText":
+					if(curField instanceof EditText)
 						metadata.put(curKey, ((EditText)curField).getText());
-						break;
-					case "CheckBox":
+					else if(curField instanceof CheckBox) {
 						metadata.put(curKey, ((CheckBox)curField).isChecked());
-						break;
-					default:
 					}
 				} catch (JSONException e) {
 					Log.e("ThingTracker","Failed to parse field!");

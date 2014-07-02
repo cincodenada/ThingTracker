@@ -127,6 +127,15 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		return HappeningList;
 	}
 	
+	public Happening getHappening(long happening_id) {
+		String[] params = {Long.toString(happening_id)};
+		SQLiteDatabase db = this.getReadableDatabase();
+		Cursor cur = db.query(HAPPENINGLIST_TABLE_NAME,null,"ID = ?",params, null, null, null);
+        if(cur.moveToFirst()) {
+        	return new Happening(cur);
+        }
+        return null;
+	}	
 	public ArrayList<Thing> getSubthings(long thing_id) {
 		String[] params = {Long.toString(thing_id)};
 		SQLiteDatabase db = this.getReadableDatabase();
