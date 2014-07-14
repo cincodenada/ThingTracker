@@ -123,9 +123,10 @@ public class AddThing extends Activity {
 		startActivity(happeningIntent);
     }
 
-    protected void viewHappenings(long thingId) {
+    protected void viewHappenings(long thingId, boolean allThings) {
 		Intent happeningIntent = new Intent(this, ViewHappenings.class);
 		happeningIntent.putExtra(ViewHappenings.ARG_THING_ID, thingId);
+		happeningIntent.putExtra(ViewHappenings.ARG_ALL_SUBTHINGS, allThings);
 		startActivity(happeningIntent);
     }
 
@@ -183,7 +184,10 @@ public class AddThing extends Activity {
             	getHappening(selThing.id);
             	return true;
             case R.id.mnu_thing_happenings:
-            	viewHappenings(selThing.id);
+            	viewHappenings(selThing.id, false);
+            	return true;
+            case R.id.mnu_thing_all_happenings:
+            	viewHappenings(selThing.id, true);
             	return true;
             case R.id.mnu_thing_delete:
             	deleteThing(selThing.id);

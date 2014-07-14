@@ -2,12 +2,17 @@ package com.cincodenada.thingtracker;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.cincodenada.thingtracker.TwoLineArrayAdapter;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -114,16 +119,35 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		}
 	}
 	
-	public ArrayList<Happening> getHappenings(long thing_id) {
-		String[] params = {Long.toString(thing_id)};
+	public ArrayList<Happening> getHappenings(long thing_id, boolean get_all) {
+		ArrayList<String> idlist = new ArrayList<String>();
+		String[] thingcols = {"id"};
 		SQLiteDatabase db = this.getReadableDatabase();
-		Cursor cur = db.query(HAPPENINGLIST_TABLE_NAME,null,"THING_ID = ?",params, null, null, null);
+		idlist.add(Long.toString(thing_id));
 		ArrayList<Happening> HappeningList = new ArrayList<Happening>();
-        if(cur.moveToFirst()) {
-            do {
-                HappeningList.add(new Happening(cur));
-            } while(cur.moveToNext());
-        }
+		Cursor cur;
+		while(!idlist.isEmpty()) {
+			String[] phlist = new String[idlist.size()];
+			Arrays.fill(phlist, "?");
+			String placeholders = StringUtils.join(phlist,",");
+			String[] params = idlist.toArray(new String[idlist.size()]);
+			cur = db.query(HAPPENINGLIST_TABLE_NAME,null,"THING_ID IN(" + placeholders + ")",params, null, null, null);
+	        if(cur.moveToFirst()) {
+	            do {
+	                HappeningList.add(new Happening(cur));
+	            } while(cur.moveToNext());
+	        }
+	        
+	        idlist.clear();
+	        if(get_all) {
+	        	cur = db.query(THINGLIST_TABLE_NAME, thingcols, "PARENT_ID IN(" + placeholders + ")",params,null,null,null);
+	        	if(cur.moveToFirst()) {
+	        		do {
+	        			idlist.add(cur.getString(0));
+	        		} while(cur.moveToNext());
+	        	}
+	        }
+		}
 		return HappeningList;
 	}
 	
@@ -252,6 +276,33 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		
 		public String toString() {
 			return df.format(new Date(this.timestamp*1000));
+		}
+	}
+	
+	public class HappeningListAdapter extends TwoLineArrayAdapter<Happening> {
+		HashMap<Long, String> nameCache;
+		ThingsOpenHelper db;
+
+		public HappeningListAdapter(Context context,
+				ArrayList<Happening> theHaps, ThingsOpenHelper db) {
+			super(context, theHaps);
+
+			nameCache = new HashMap<Long, String>();
+			this.db = db;
+		}
+		
+		@Override public String lineOneText(Happening h) {
+			if(nameCache.containsKey(h.thing_id)) {
+				return nameCache.get(h.thing_id);
+			} else {
+				Thing parent = db.getThing(h.thing_id);
+				nameCache.put(h.thing_id, parent.data);
+				return parent.data;
+			}
+		}
+			
+		@Override public String lineTwoText(Happening h) {
+			return h.toString();
 		}
 	}
 }

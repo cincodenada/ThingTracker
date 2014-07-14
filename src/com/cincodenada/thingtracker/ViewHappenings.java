@@ -37,6 +37,7 @@ import android.os.Build;
 public class ViewHappenings extends ActionBarActivity {
 	
 	public static final String ARG_THING_ID = "thing_id";
+	public static final String ARG_ALL_SUBTHINGS = "all_subthings";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +48,9 @@ public class ViewHappenings extends ActionBarActivity {
 			ViewHappeningsFragment f = new ViewHappeningsFragment();
 			Bundle args = new Bundle();
 			Long thing_id = getIntent().getLongExtra(ARG_THING_ID, 0);
-			args.putLong("thing_id", thing_id);
+			args.putLong(ARG_THING_ID, thing_id);
+			boolean all_subthings = getIntent().getBooleanExtra(ARG_ALL_SUBTHINGS, false);
+			args.putBoolean(ARG_ALL_SUBTHINGS, all_subthings);
 			f.setArguments(args);
 			getSupportFragmentManager().beginTransaction()
 					.add(R.id.container, f).commit();
@@ -81,6 +84,9 @@ public class ViewHappenings extends ActionBarActivity {
 
 	    private ThingsOpenHelper dbHelper;
 		private Thing targetThing;
+		private ArrayList<Happening> theHaps;
+		private ArrayAdapter<Happening> hapsArray;
+		private boolean curAllThings;
 
 		public ViewHappeningsFragment() {
 		}
@@ -95,10 +101,8 @@ public class ViewHappenings extends ActionBarActivity {
 			
 			dbHelper = new ThingsOpenHelper(getActivity());
 
-			targetThing = dbHelper.getThing(args.getLong("thing_id"));
-			
-			ArrayList<Happening> theHaps = dbHelper.getHappenings(targetThing.id);
-	        ArrayAdapter<Happening> hapsArray = new ArrayAdapter<Happening>(getActivity(),android.R.layout.simple_list_item_1,theHaps);
+			theHaps = new ArrayList<Happening>();
+			hapsArray = dbHelper.new HappeningListAdapter(getActivity(), theHaps, dbHelper);
 	        ListView hapsBin = (ListView) rootView.findViewById(R.id.happening_list);
 	        hapsBin.setAdapter(hapsArray);
 	        
@@ -106,7 +110,19 @@ public class ViewHappenings extends ActionBarActivity {
 	        
 	        hapsBin.setOnItemClickListener(showDetails);
 
+	        getTheHaps(args.getLong(ARG_THING_ID), args.getBoolean(ARG_ALL_SUBTHINGS));
+	        
 			return rootView;
+		}
+		
+		public void getTheHaps(Long thing_id, boolean getAll) {
+			hapsArray.clear();
+			for(Happening curHap: dbHelper.getHappenings(thing_id, getAll)) {
+	            Log.d("Fucker",curHap.toString());
+				hapsArray.add(curHap);
+			}
+			targetThing = dbHelper.getThing(thing_id);
+			curAllThings = getAll;
 		}
 		
 	    @Override
@@ -137,6 +153,7 @@ public class ViewHappenings extends ActionBarActivity {
 			public void onItemClick(AdapterView<?> av, View v, int pos, long id) {
 				// TODO Auto-generated method stub
 				Happening clickedHappening = (Happening)av.getItemAtPosition(pos);
+				Thing clickedThing = (Thing)dbHelper.getThing(clickedHappening.thing_id);
 				
 				Iterator<String> keyIter = clickedHappening.metadata.keys();
 				String curKey;
@@ -153,7 +170,7 @@ public class ViewHappenings extends ActionBarActivity {
 				summary = summary.trim();
 				
 				AlertDialog.Builder showSummary = new AlertDialog.Builder(getActivity());
-				showSummary.setTitle("Happening Summary");
+				showSummary.setTitle(clickedThing.data + " Happening");
 				showSummary.setMessage(summary);
 				Dialog summaryDialog = showSummary.create();
 				summaryDialog.show();

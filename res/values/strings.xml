@@ -18,5 +18,6 @@
     <string name="title_activity_edit_thing">EditThing</string>
     <string name="thing_name">Thing Name</string>
     <string name="thing_metadata">Thing Metadata</string>
+    <string name="view_all_happenings">View All Happenings</string>
 
 </resources>
