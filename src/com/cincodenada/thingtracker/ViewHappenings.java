@@ -14,14 +14,20 @@ import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
@@ -96,10 +102,35 @@ public class ViewHappenings extends ActionBarActivity {
 	        ListView hapsBin = (ListView) rootView.findViewById(R.id.happening_list);
 	        hapsBin.setAdapter(hapsArray);
 	        
+	        registerForContextMenu(hapsBin);        
+	        
 	        hapsBin.setOnItemClickListener(showDetails);
 
 			return rootView;
 		}
+		
+	    @Override
+	    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+	    	super.onCreateContextMenu(menu, v, menuInfo);
+	    	
+	        MenuInflater inflater = getActivity().getMenuInflater();
+	        inflater.inflate(R.menu.view_happenings, menu);
+	    }
+		
+	    @Override
+	    public boolean onContextItemSelected(MenuItem item) {
+	        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+	        ListView buttonBin = (ListView) info.targetView.getParent();
+	        Happening selThing = (Happening) buttonBin.getItemAtPosition(info.position);
+	        switch (item.getItemId()) {
+	            case R.id.mnu_happenings_delete:
+	            	dbHelper.deleteHappening(selThing.id);
+	            	getTheHaps(targetThing.id, curAllThings);
+	            default:
+	                return super.onContextItemSelected(item);
+	        }
+	    }
+
 		
 		protected OnItemClickListener showDetails = new OnItemClickListener() {
 			@Override

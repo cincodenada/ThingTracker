@@ -170,8 +170,11 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 				"LEFT JOIN " + THINGLIST_TABLE_NAME + " st ON st.PARENT_ID = t.ID " +
 				"WHERE t.ID = ? " +
 				"GROUP BY t.ID", params);
-		res.moveToFirst();
-		return new Thing(res);
+		if(res.moveToFirst()) {
+			return new Thing(res);
+		} else {
+			return null;
+		}
 	}
 	
 	public boolean deleteThing(long thing_id) {
@@ -182,6 +185,14 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		success = success && (db.delete(THINGLIST_TABLE_NAME,"id = ?",params) > 0);
 		//success = success && (db.delete(HAPPENINGLIST_TABLE_NAME,"thing_id = ?",params) > 0);
 		return success;
+	}
+
+	public boolean deleteHappening(long happening_id) {
+		if(happening_id == 0) { return false; }
+		String[] params = {Long.toString(happening_id)};
+		SQLiteDatabase db = this.getReadableDatabase();
+		int numdel = db.delete(HAPPENINGLIST_TABLE_NAME,"id = ?",params);
+		return (numdel > 0);
 	}
 
 	public class Thing {
