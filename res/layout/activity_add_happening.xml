@@ -5,42 +5,66 @@
     android:gravity="center"
     android:orientation="vertical" >
 
-    <SeekBar
-        android:id="@+id/happening_seeker"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <LinearLayout
-        android:id="@+id/happening_datetime"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" >
-
-        <TextView
-            android:id="@+id/happening_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="12:00 am" />
-
-        <TextView
-            android:id="@+id/happening_spacer"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/spacer" />
-
-        <TextView
-            android:id="@+id/happening_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="January 1, 1980" />
-
-    </LinearLayout>
-
     <LinearLayout
         android:id="@+id/happening_fields"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
         android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <Button
+                android:id="@+id/btnDate"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/date" />
+
+            <Button
+                android:id="@+id/btnHour"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/addhour" />
+
+            <Button
+                android:id="@+id/btnMinute"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/addminute" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/happening_datetime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center|center_horizontal" >
+
+            <TextView
+                android:id="@+id/happening_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12:00 am" />
+
+            <TextView
+                android:id="@+id/happening_spacer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/spacer" />
+
+            <TextView
+                android:id="@+id/happening_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="January 1, 1980" />
+        </LinearLayout>
 
     </LinearLayout>
 

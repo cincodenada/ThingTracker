@@ -19,5 +19,8 @@
     <string name="thing_name">Thing Name</string>
     <string name="thing_metadata">Thing Metadata</string>
     <string name="view_all_happenings">View All Happenings</string>
+    <string name="date">Change Date</string>
+    <string name="addhour">Add Hour</string>
+    <string name="addminute">Add Minute</string>
 
 </resources>

@@ -1,17 +1,16 @@
 package com.cincodenada.thingtracker;
 
 import java.util.Iterator;
-import java.text.DateFormat;
+import android.text.format.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-
 import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
 import org.apache.commons.math3.analysis.UnivariateFunction;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -26,12 +25,16 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.os.Build;
-
+import android.app.TimePickerDialog;
+import android.app.DatePickerDialog;
+import android.content.Context;
 import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
 
 public class AddHappening extends Activity {
@@ -40,7 +43,7 @@ public class AddHappening extends Activity {
 	
     private ThingsOpenHelper dbHelper;
 	private Thing targetThing;
-	private TimeSlider timeSel;
+	private TimeButtons timeSel;
 
 	HashMap<String,View> fieldMap;
 	
@@ -59,7 +62,11 @@ public class AddHappening extends Activity {
 		Iterator<String> keyIter = targetThing.metadef.keys();
 		LinearLayout fieldBucket = (LinearLayout) findViewById(R.id.happening_fields);
 		
-		timeSel = new TimeSlider((SeekBar) findViewById(R.id.happening_seeker));
+		timeSel = new TimeButtons(
+			(Button)findViewById(R.id.btnDate),
+			(Button)findViewById(R.id.btnHour),
+			(Button)findViewById(R.id.btnMinute)
+		);
 		
 		String curKey, curVal;
 		TextView curLabel;
@@ -160,9 +167,6 @@ public class AddHappening extends Activity {
 			startTime.add(Calendar.YEAR, -1);
 			endTime.add(Calendar.YEAR, 1);
 			
-			this.dfDate = DateFormat.getDateInstance();
-			this.dfTime = DateFormat.getTimeInstance();
-
 			this.timeButton = (TextView) findViewById(R.id.happening_time);
 			this.dateButton = (TextView) findViewById(R.id.happening_date);
 			
@@ -208,8 +212,100 @@ public class AddHappening extends Activity {
 		}
 		
 		public void updateText(Calendar time) {
-			this.timeButton.setText(this.dfTime.format(time.getTime()));
-			this.dateButton.setText(this.dfDate.format(time.getTime()));
+			this.timeButton.setText(DateFormat.format("HH:mm", time));
+			this.dateButton.setText(DateFormat.format("MMMM d, yyyy",time));
+		}
+	}
+	
+	public class TimeButtons {
+		Button dateBtn, hourBtn, minBtn;
+		Calendar curTime;
+		TextView timeButton, dateButton;
+		protected DateFormat dfDate, dfTime;
+
+		public TimeButtons(Button dateBtn, Button hourBtn, Button minBtn) {
+			this.dateBtn = dateBtn;
+			this.hourBtn = hourBtn;
+			this.minBtn = minBtn;
+			
+			this.curTime = Calendar.getInstance();
+			this.timeButton = (TextView) findViewById(R.id.happening_time);
+			this.dateButton = (TextView) findViewById(R.id.happening_date);
+			
+			this.dateBtn.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View btn) {
+				    DialogFragment datePicker = new DatePickerFragment();
+				    datePicker.show(getFragmentManager(), "datePicker");
+				}
+			
+			});
+
+			this.minBtn.setOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View btn) {
+				    DialogFragment timePicker = new TimePickerFragment();
+				    timePicker.show(getFragmentManager(), "timePicker");
+				}
+			
+			});
+
+			updateText(curTime);
+		}
+		
+		public long getTime() {
+			return curTime.getTimeInMillis()/1000;
+		}
+		
+		public void updateText(Calendar time) {
+			this.timeButton.setText(DateFormat.format("HH:mm", time));
+			this.dateButton.setText(DateFormat.format("MMMM d, yyyy",time));
+		}
+		
+		@SuppressLint("ValidFragment")
+		public class TimePickerFragment extends DialogFragment
+        implements TimePickerDialog.OnTimeSetListener {
+			@Override
+			public Dialog onCreateDialog(Bundle savedInstanceState) {
+				// Use the current time as the default values for the picker
+				int hour = curTime.get(Calendar.HOUR_OF_DAY);
+				int minute = curTime.get(Calendar.MINUTE);
+				
+				// Create a new instance of TimePickerDialog and return it
+				return new TimePickerDialog(getActivity(), this, hour, minute,
+				DateFormat.is24HourFormat(getActivity()));
+			}
+
+			@Override
+			public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+				curTime.set(Calendar.HOUR,hourOfDay);
+				curTime.set(Calendar.MINUTE,minute);
+				updateText(curTime);
+			}
+		}
+
+		@SuppressLint("ValidFragment")
+		public class DatePickerFragment extends DialogFragment
+		implements DatePickerDialog.OnDateSetListener {
+
+			@Override
+			public Dialog onCreateDialog(Bundle savedInstanceState) {
+				// Use the current date as the default date in the picker
+				int year = curTime.get(Calendar.YEAR);
+				int month = curTime.get(Calendar.MONTH);
+				int day = curTime.get(Calendar.DAY_OF_MONTH);
+
+				// Create a new instance of DatePickerDialog and return it
+				return new DatePickerDialog(getActivity(), this, year, month, day);
+			}
+
+			@Override
+			public void onDateSet(DatePicker view, int year, int month, int day) {
+				curTime.set(Calendar.YEAR,year);
+				curTime.set(Calendar.MONTH,month);
+				curTime.set(Calendar.DAY_OF_MONTH,day);
+				updateText(curTime);
+			}
 		}
 	}
 }
