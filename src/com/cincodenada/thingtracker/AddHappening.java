@@ -144,16 +144,26 @@ public class AddHappening extends Activity {
 		}
 	};
 	
-	public class TimeSlider {
-		protected SeekBar slider;
-		
-		protected DateFormat dfDate;
-		protected DateFormat dfTime;
+	public class TimeProvider {
 		TextView timeButton;
 		TextView dateButton;
 		
-		protected Calendar baseTime;
 		protected Calendar curTime;
+		
+		public long getTime() {
+			return curTime.getTimeInMillis()/1000;
+		}
+		
+		public void updateText(Calendar time) {
+			this.timeButton.setText(DateFormat.format("HH:mm", time));
+			this.dateButton.setText(DateFormat.format("MMMM d, yyyy",time));
+		}
+	}
+	
+	public class TimeSlider extends TimeProvider {
+		protected SeekBar slider;
+		
+		protected Calendar baseTime;
 		protected long seekCenter;
 		
 		protected double scaleunit = 60*60*24;
@@ -206,22 +216,10 @@ public class AddHappening extends Activity {
 				updateText(curTime);
 			}
 		};
-		
-		public long getTime() {
-			return curTime.getTimeInMillis()/1000;
-		}
-		
-		public void updateText(Calendar time) {
-			this.timeButton.setText(DateFormat.format("HH:mm", time));
-			this.dateButton.setText(DateFormat.format("MMMM d, yyyy",time));
-		}
 	}
 	
-	public class TimeButtons {
+	public class TimeButtons extends TimeProvider {
 		Button dateBtn, hourBtn, minBtn;
-		Calendar curTime;
-		TextView timeButton, dateButton;
-		protected DateFormat dfDate, dfTime;
 
 		public TimeButtons(Button dateBtn, Button hourBtn, Button minBtn) {
 			this.dateBtn = dateBtn;
@@ -251,15 +249,6 @@ public class AddHappening extends Activity {
 			});
 
 			updateText(curTime);
-		}
-		
-		public long getTime() {
-			return curTime.getTimeInMillis()/1000;
-		}
-		
-		public void updateText(Calendar time) {
-			this.timeButton.setText(DateFormat.format("HH:mm", time));
-			this.dateButton.setText(DateFormat.format("MMMM d, yyyy",time));
 		}
 		
 		@SuppressLint("ValidFragment")
