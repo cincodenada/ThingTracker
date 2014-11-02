@@ -9,9 +9,8 @@ import com.cincodenada.thingtracker.ThingsOpenHelper.Happening;
 import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
 import com.cincodenada.thingtracker.ViewHappenings.ViewHappeningsFragment;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.app.Activity;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +24,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.os.Build;
 
-public class EditThing extends ActionBarActivity {
+public class EditThing extends Activity {
 
 	public static final String ARG_THING_ID = "thing_id";
 	
@@ -40,7 +39,7 @@ public class EditThing extends ActionBarActivity {
 			Long thing_id = getIntent().getLongExtra(ARG_THING_ID, 0);
 			args.putLong("thing_id", thing_id);
 			f.setArguments(args);
-			getSupportFragmentManager().beginTransaction()
+			getFragmentManager().beginTransaction()
 					.add(R.id.container, f).commit();
 		}
 	}
