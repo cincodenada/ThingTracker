@@ -75,6 +75,12 @@ public class WearAdd extends Activity {
                   }
                 });
 
+                Button backBtn = (Button) findViewById(R.id.btnBack);
+                backBtn.setOnClickListener(new Button.OnClickListener() {
+                    @Override
+                    public void onClick(View v) { LoadParentThing(); }
+                });
+
                 registerForContextMenu(buttonBin);
 
                 dbHelper = new ThingsOpenHelper(WearAdd.this);
@@ -106,6 +112,10 @@ public class WearAdd extends Activity {
             thingArray.add(curThing);
         }
         curThing = dbHelper.getThing(curThingId);
+
+        //Disable the Back button if we're at the root activity
+        Button backBtn = (Button) findViewById(R.id.btnBack);
+        backBtn.setEnabled(curThing != null);
         //Log.d("Fucker",Integer.toString(thingArray.getCount()));
     }
 
@@ -113,8 +123,6 @@ public class WearAdd extends Activity {
         prevThingId = curThingId;
         curThingId = newid;
         loadThings();
-        Button backBtn = (Button) findViewById(R.id.btnBack);
-        backBtn.setEnabled(curThing.id > 0);
     }
 
     protected void deleteThing(long thingId) {
@@ -190,10 +198,16 @@ public class WearAdd extends Activity {
 
     @Override
     public void onBackPressed() {
+        boolean didSomething = LoadParentThing();
+        if(!didSomething) { super.onBackPressed(); }
+    }
+
+    public boolean LoadParentThing() {
         if(curThing != null && curThing.id > 0) {
             setCurThing(curThing.parent_id);
+            return true;
         } else {
-            super.onBackPressed();
+            return false;
         }
     }
 
