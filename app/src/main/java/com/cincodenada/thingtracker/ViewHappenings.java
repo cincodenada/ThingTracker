@@ -9,9 +9,8 @@ import com.cincodenada.thingtracker.AddThing.ThingListAdapter;
 import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
 import com.cincodenada.thingtracker.ThingsOpenHelper.Happening;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
+import android.app.Activity;
+import android.app.Fragment;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -34,7 +33,7 @@ import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.os.Build;
 
-public class ViewHappenings extends ActionBarActivity {
+public class ViewHappenings extends Activity {
 	
 	public static final String ARG_THING_ID = "thing_id";
 	public static final String ARG_ALL_SUBTHINGS = "all_subthings";
@@ -45,15 +44,14 @@ public class ViewHappenings extends ActionBarActivity {
 		setContentView(R.layout.activity_view_happenings);
 		
 		if (savedInstanceState == null) {
-			ViewHappeningsFragment f = new ViewHappeningsFragment();
+			Fragment f = new ViewHappeningsFragment();
 			Bundle args = new Bundle();
 			Long thing_id = getIntent().getLongExtra(ARG_THING_ID, 0);
 			args.putLong(ARG_THING_ID, thing_id);
 			boolean all_subthings = getIntent().getBooleanExtra(ARG_ALL_SUBTHINGS, false);
 			args.putBoolean(ARG_ALL_SUBTHINGS, all_subthings);
 			f.setArguments(args);
-			getSupportFragmentManager().beginTransaction()
-					.add(R.id.container, f).commit();
+			getFragmentManager().beginTransaction().add(R.id.container, f).commit();
 		}
 	}
 
