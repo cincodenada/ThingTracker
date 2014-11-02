@@ -25,5 +25,7 @@
     <string name="title_activity_wear_add">WearAdd</string>
     <string name="hello_round">Hello Round World!</string>
     <string name="hello_square">Hello Square World!</string>
+    <string name="add_thing">Add Thing</string>
+    <string name="back">Back</string>
 
 </resources>
