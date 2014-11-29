@@ -17,10 +17,7 @@ import android.view.ViewGroup;
 import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -28,8 +25,6 @@ import android.widget.ArrayAdapter;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-
-import org.apache.commons.lang3.StringUtils;
 
 import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
 
@@ -118,8 +113,8 @@ public class AddThing extends Activity {
     }
     
     protected void getHappening(long thingId) {
-		Intent happeningIntent = new Intent(this, AddHappening.class);
-		happeningIntent.putExtra(AddHappening.ARG_THING_ID, thingId);
+		Intent happeningIntent = new Intent(this, EditHappening.class);
+		happeningIntent.putExtra(EditHappening.ARG_THING_ID, thingId);
 		startActivity(happeningIntent);
     }
 

@@ -22,5 +22,6 @@
     <string name="date">Change Date</string>
     <string name="addhour">Add Hour</string>
     <string name="addminute">Add Minute</string>
+    <string name="edit">Edit</string>
 
 </resources>

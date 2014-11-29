@@ -3,5 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.cincodenada.thingtracker.ViewHappenings" >
     <item android:id="@+id/mnu_happenings_delete" android:menuCategory="secondary" android:title="@string/delete"></item>
+    <item android:id="@+id/mnu_happenings_edit" android:menuCategory="secondary" android:title="@string/edit"></item>
 
 </menu>

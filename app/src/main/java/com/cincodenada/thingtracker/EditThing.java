@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.cincodenada.thingtracker.ThingsOpenHelper.Happening;
 import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
 import com.cincodenada.thingtracker.ViewHappenings.ViewHappeningsFragment;
 

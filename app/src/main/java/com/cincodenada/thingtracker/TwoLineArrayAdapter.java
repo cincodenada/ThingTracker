@@ -2,8 +2,6 @@ package com.cincodenada.thingtracker;
 
 import java.util.ArrayList;
 
-import com.cincodenada.thingtracker.ThingsOpenHelper.Happening;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;

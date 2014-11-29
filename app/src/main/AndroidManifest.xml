@@ -23,7 +23,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.cincodenada.thingtracker.AddHappening"
+            android:name="com.cincodenada.thingtracker.EditHappening"
             android:label="@string/title_activity_add_happening" >
         </activity>
         <activity

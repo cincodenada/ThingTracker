@@ -7,8 +7,8 @@ import org.json.JSONException;
 
 import com.cincodenada.thingtracker.AddThing.ThingListAdapter;
 import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
-import com.cincodenada.thingtracker.ThingsOpenHelper.Happening;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -38,6 +38,8 @@ public class ViewHappenings extends ActionBarActivity {
 	
 	public static final String ARG_THING_ID = "thing_id";
 	public static final String ARG_ALL_SUBTHINGS = "all_subthings";
+
+    private static final int EDIT_HAPP = 0;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -142,10 +144,20 @@ public class ViewHappenings extends ActionBarActivity {
 	            case R.id.mnu_happenings_delete:
 	            	dbHelper.deleteHappening(selThing.id);
 	            	getTheHaps(targetThing.id, curAllThings);
+                case R.id.mnu_happenings_edit:
+                    Intent happeningIntent = new Intent(getActivity(), EditHappening.class);
+                    happeningIntent.putExtra(EditHappening.ARG_HAPP_ID, selThing.id);
+                    startActivityForResult(happeningIntent, EDIT_HAPP);
 	            default:
 	                return super.onContextItemSelected(item);
 	        }
 	    }
+
+        public void onActivityResult(int requestCode, int resultCode, Intent data) {
+            if(requestCode == EDIT_HAPP) {
+                getTheHaps(targetThing.id, curAllThings);
+            }
+        }
 
 		
 		protected OnItemClickListener showDetails = new OnItemClickListener() {

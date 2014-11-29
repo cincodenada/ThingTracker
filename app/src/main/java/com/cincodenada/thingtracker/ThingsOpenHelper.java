@@ -25,11 +25,14 @@ import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 public class ThingsOpenHelper extends SQLiteOpenHelper {
-    
+
 	private static final int DATABASE_VERSION = 1;
     private static final String DATABASE_NAME = "thingDB";
-    private static final String THINGLIST_TABLE_NAME = "things";
-    private static final String HAPPENINGLIST_TABLE_NAME = "happenings";
+
+    // Public table names so we can use them in the object classes
+    public static final String THINGLIST_TABLE_NAME = "things";
+    public static final String HAPPENINGLIST_TABLE_NAME = "happenings";
+
     private static final String THINGLIST_TABLE_CREATE =
                 "CREATE TABLE " + THINGLIST_TABLE_NAME + " (" +
                 "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -87,9 +90,8 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		String[] params = {Long.toString(id)};
 		SQLiteDatabase db = this.getReadableDatabase();
 		ContentValues values = new ContentValues();
-		String metadefval = metadef.toString();
 		values.put("DATA", text);
-		values.put("METADEF",metadefval);
+		values.put("METADEF",metadef.toString());
 		return db.update(THINGLIST_TABLE_NAME, values, "ID = ?", params);
 	}
 	
@@ -254,30 +256,7 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		}
 	}
 	
-	public class Happening {
-		public long id;
-		public long thing_id;
-		public long timestamp;
-		public JSONObject metadata;
-		public DateFormat df;
-		
-		public Happening(Cursor cur) {
-			this.id = cur.getLong(cur.getColumnIndex("ID"));
-			this.thing_id = cur.getLong(cur.getColumnIndex("THING_ID"));
-			this.timestamp = cur.getInt(cur.getColumnIndex("TIMESTAMP"));
-			try {
-				this.metadata = new JSONObject(cur.getString(cur.getColumnIndex("METADATA")));
-			} catch (JSONException e) {
-				this.metadata = new JSONObject();
-			}
-			
-			df = DateFormat.getDateTimeInstance();
-		}
-		
-		public String toString() {
-			return df.format(new Date(this.timestamp*1000));
-		}
-	}
+
 	
 	public class HappeningListAdapter extends TwoLineArrayAdapter<Happening> {
 		HashMap<Long, String> nameCache;

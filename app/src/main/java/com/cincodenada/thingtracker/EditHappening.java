@@ -2,12 +2,10 @@ package com.cincodenada.thingtracker;
 
 import java.util.Iterator;
 import android.text.format.DateFormat;
-import java.util.ArrayList;
+
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
-import org.apache.commons.math3.analysis.integration.TrapezoidIntegrator;
-import org.apache.commons.math3.analysis.UnivariateFunction;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.annotation.SuppressLint;
@@ -15,14 +13,11 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.os.Bundle;
-import android.util.AttributeSet;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
@@ -31,18 +26,20 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.os.Build;
 import android.app.TimePickerDialog;
 import android.app.DatePickerDialog;
-import android.content.Context;
+import android.widget.Toast;
+
 import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
 
-public class AddHappening extends Activity {
+public class EditHappening extends Activity {
 	
 	public static final String ARG_THING_ID = "thing_id";
+	public static final String ARG_HAPP_ID = "happening_id";
 	
     private ThingsOpenHelper dbHelper;
 	private Thing targetThing;
+	private Happening curHapp;
 	private TimeButtons timeSel;
 
 	HashMap<String,View> fieldMap;
@@ -52,48 +49,79 @@ public class AddHappening extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_add_happening);
 		
-		dbHelper = new ThingsOpenHelper(AddHappening.this);
+		dbHelper = new ThingsOpenHelper(EditHappening.this);
 
 		findViewById(R.id.happening_save).setOnClickListener(saveButtonListener);
 				
 		Long thing_id = getIntent().getLongExtra(ARG_THING_ID, 0);
-		targetThing = dbHelper.getThing(thing_id);
-		
+		Long happ_id = getIntent().getLongExtra(ARG_HAPP_ID, 0);
+        if(happ_id > 0) {
+            curHapp = dbHelper.getHappening(happ_id);
+        }
+
+        if(curHapp == null) {
+            targetThing = dbHelper.getThing(thing_id);
+            curHapp = new Happening(thing_id);
+        } else {
+            targetThing = dbHelper.getThing(curHapp.thing_id);
+        }
+
+        if(targetThing == null || curHapp == null) {
+            Toast.makeText(EditHappening.this, "Parent thing not found!", Toast.LENGTH_SHORT).show();
+	        EditHappening.this.finish();
+            return;
+        }
+
 		Iterator<String> keyIter = targetThing.metadef.keys();
 		LinearLayout fieldBucket = (LinearLayout) findViewById(R.id.happening_fields);
+
+        Calendar curTime = Calendar.getInstance();
+        if(curHapp.timestamp > 0) {
+            curTime.setTimeInMillis(curHapp.timestamp*1000);
+        }
 		
 		timeSel = new TimeButtons(
 			(Button)findViewById(R.id.btnDate),
 			(Button)findViewById(R.id.btnHour),
-			(Button)findViewById(R.id.btnMinute)
+			(Button)findViewById(R.id.btnMinute),
+            curTime
 		);
 		
-		String curKey, curVal;
+		String curKey, curType;
+        Object curVal;
 		TextView curLabel;
 		View curField;
 		fieldMap = new HashMap<String,View>();
 		while(keyIter.hasNext()) {
 			curKey = keyIter.next();
 			try {
-				curVal = targetThing.metadef.getString(curKey);
+				curType = targetThing.metadef.getString(curKey);
 			} catch (JSONException e) {
 				continue;
 			}
 
-			switch(curVal) {
+            try {
+                curVal = curHapp.metadata.get(curKey);
+            } catch (JSONException e) {
+                curVal = null;
+            }
+
+			switch(curType) {
 			case "yesno":
-				curField = new CheckBox(AddHappening.this);
+				curField = new CheckBox(EditHappening.this);
 				((CheckBox)curField).setText(curKey);
+                if(curVal != null) { ((CheckBox)curField).setChecked((Boolean)curVal); }
 				fieldBucket.addView(curField);
 				fieldMap.put(curKey, curField);
 				break;
 			case "text":
 			default:
-				curLabel = new TextView(AddHappening.this);
+				curLabel = new TextView(EditHappening.this);
 				curLabel.setText(curKey);
 				fieldBucket.addView(curLabel);
 				
-				curField = new EditText(AddHappening.this);
+				curField = new EditText(EditHappening.this);
+                if(curVal != null) { ((EditText)curField).setText((String)curVal); }
 				fieldBucket.addView(curField);
 				fieldMap.put(curKey, curField);
 			}
@@ -123,24 +151,24 @@ public class AddHappening extends Activity {
 	
 	protected OnClickListener saveButtonListener = new OnClickListener() {
 		public void onClick(View v) {
-			ThingsOpenHelper dbHelper = new ThingsOpenHelper(AddHappening.this);
-			JSONObject metadata = new JSONObject();
+			ThingsOpenHelper dbHelper = new ThingsOpenHelper(EditHappening.this);
 			View curField;
 			for(String curKey: fieldMap.keySet()) {
 				curField = fieldMap.get(curKey);
 				Log.d("ThingTracker","Saving field: " + curKey);
 				try {
 					if(curField instanceof EditText)
-						metadata.put(curKey, ((EditText)curField).getText());
+						curHapp.metadata.put(curKey, ((EditText)curField).getText());
 					else if(curField instanceof CheckBox) {
-						metadata.put(curKey, ((CheckBox)curField).isChecked());
+						curHapp.metadata.put(curKey, ((CheckBox)curField).isChecked());
 					}
 				} catch (JSONException e) {
 					Log.e("ThingTracker","Failed to parse field!");
 				}
 			}
-	        dbHelper.addHappening(targetThing.id, timeSel.getTime(), metadata);
-	        AddHappening.this.finish();
+            curHapp.timestamp = timeSel.getTime();
+            curHapp.save(dbHelper);
+	        EditHappening.this.finish();
 		}
 	};
 	
@@ -221,12 +249,16 @@ public class AddHappening extends Activity {
 	public class TimeButtons extends TimeProvider {
 		Button dateBtn, hourBtn, minBtn;
 
-		public TimeButtons(Button dateBtn, Button hourBtn, Button minBtn) {
+		public TimeButtons(Button dateBtn, Button hourBtn, Button minBtn, Calendar curTime) {
 			this.dateBtn = dateBtn;
 			this.hourBtn = hourBtn;
 			this.minBtn = minBtn;
 			
-			this.curTime = Calendar.getInstance();
+			if(curTime == null) {
+                this.curTime = Calendar.getInstance();
+            } else {
+                this.curTime = curTime;
+            }
 			this.timeButton = (TextView) findViewById(R.id.happening_time);
 			this.dateButton = (TextView) findViewById(R.id.happening_date);
 			
@@ -259,6 +291,8 @@ public class AddHappening extends Activity {
 				// Use the current time as the default values for the picker
 				int hour = curTime.get(Calendar.HOUR_OF_DAY);
 				int minute = curTime.get(Calendar.MINUTE);
+
+                Log.d("Fucker",String.format("Initiating dialog with hour %d and minute %d (%d)",hour,minute,curTime.getTimeInMillis()));
 				
 				// Create a new instance of TimePickerDialog and return it
 				return new TimePickerDialog(getActivity(), this, hour, minute,
@@ -267,8 +301,11 @@ public class AddHappening extends Activity {
 
 			@Override
 			public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                Log.d("Fucker",String.format("Setting time to hour %d and minute %d (%d)",hourOfDay,minute,curTime.getTimeInMillis()));
+
                 curTime.set(Calendar.HOUR_OF_DAY,hourOfDay);
                 curTime.set(Calendar.MINUTE,minute);
+                Log.d("Fucker",String.format("Time is now %d",curTime.getTimeInMillis()));
 				updateText(curTime);
 			}
 		}
