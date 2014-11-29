@@ -267,8 +267,8 @@ public class AddHappening extends Activity {
 
 			@Override
 			public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-				curTime.set(Calendar.HOUR,hourOfDay);
-				curTime.set(Calendar.MINUTE,minute);
+                curTime.set(Calendar.HOUR_OF_DAY,hourOfDay);
+                curTime.set(Calendar.MINUTE,minute);
 				updateText(curTime);
 			}
 		}
