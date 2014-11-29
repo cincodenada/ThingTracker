@@ -13,11 +13,11 @@ public abstract class TwoLineArrayAdapter<T> extends ArrayAdapter<T> {
     private int mListItemLayoutResId;
 
     public TwoLineArrayAdapter(Context context, ArrayList<T> ts) {
-    	this(context, android.R.layout.two_line_list_item, ts);
+        this(context, android.R.layout.two_line_list_item, ts);
     }
 
     public TwoLineArrayAdapter(
-            Context context, 
+            Context context,
             int listItemLayoutResourceId,
             ArrayList<T> ts) {
         super(context, listItemLayoutResourceId, ts);
@@ -26,7 +26,7 @@ public abstract class TwoLineArrayAdapter<T> extends ArrayAdapter<T> {
 
     @Override
     public android.view.View getView(
-            int position, 
+            int position,
             View convertView,
             ViewGroup parent) {
 
@@ -35,10 +35,10 @@ public abstract class TwoLineArrayAdapter<T> extends ArrayAdapter<T> {
             .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
         View listItemView = convertView;
-        if (null == convertView) { 
+        if (null == convertView) {
             listItemView = inflater.inflate(
-                mListItemLayoutResId, 
-                parent, 
+                mListItemLayoutResId,
+                parent,
                 false);
         }
 
@@ -48,7 +48,7 @@ public abstract class TwoLineArrayAdapter<T> extends ArrayAdapter<T> {
         TextView lineTwoView = (TextView)listItemView.findViewById(
             android.R.id.text2);
 
-        T t = (T)getItem(position); 
+        T t = (T)getItem(position);
         lineOneView.setText(lineOneText(t));
         lineTwoView.setText(lineTwoText(t));
 
