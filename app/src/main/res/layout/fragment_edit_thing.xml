@@ -38,13 +38,16 @@
             android:text="@string/thing_metadata"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <EditText
-            android:id="@+id/txtThingMetadata"
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:layout_weight="1"
-            android:ems="10"
-            android:inputType="textMultiLine" />
+            android:focusableInTouchMode="false"
+            android:id="@+id/thing_fields">
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btnSaveThing"

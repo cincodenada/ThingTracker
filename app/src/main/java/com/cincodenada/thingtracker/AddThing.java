@@ -112,6 +112,7 @@ public class AddThing extends Activity {
         loadThings();
     }
 
+    //Here be other activity launchers
     protected void getHappening(long thingId) {
         Intent happeningIntent = new Intent(this, EditHappening.class);
         happeningIntent.putExtra(EditHappening.ARG_THING_ID, thingId);
@@ -130,6 +131,13 @@ public class AddThing extends Activity {
         editThingIntent.putExtra(EditThing.ARG_THING_ID, thingId);
         startActivity(editThingIntent);
     }
+
+    protected void editFields(long thingId) {
+        Intent editFieldsIntent = new Intent(this, EditFields.class);
+        editFieldsIntent.putExtra(EditFields.ARG_THING_ID, thingId);
+        startActivity(editFieldsIntent);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -190,6 +198,8 @@ public class AddThing extends Activity {
             case R.id.mnu_thing_edit_thing:
                 editThing(selThing.id);
                 return true;
+            case R.id.mnu_thing_edit_fields:
+                editFields(selThing.id);
             default:
                 return super.onContextItemSelected(item);
         }

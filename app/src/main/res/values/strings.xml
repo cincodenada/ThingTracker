@@ -23,5 +23,6 @@
     <string name="addhour">Add Hour</string>
     <string name="addminute">Add Minute</string>
     <string name="edit">Edit</string>
+    <string name="empty">TextView</string>
 
 </resources>

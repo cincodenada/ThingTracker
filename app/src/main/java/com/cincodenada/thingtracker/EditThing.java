@@ -92,8 +92,29 @@ public class EditThing extends ActionBarActivity {
             nameView = (EditText)rootView.findViewById(R.id.txtThingName);
             metadata = (EditText)rootView.findViewById(R.id.txtThingMetadata);
 
-            nameView.setText(targetThing.data);
-            metadata.setText(targetThing.metadef.toString());
+            Iterator<String> keyIter = targetThing.metadef.keys();
+            LinearLayout fieldBucket = (LinearLayout) findViewById(R.id.thing_fields);
+
+            LayoutInflater inflater;
+            String curKey, curType;
+            Object curVal;
+            TextView curLabel;
+            View curField;
+
+            fieldMap = new HashMap<String,View>();
+            inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            while(keyIter.hasNext()) {
+                curKey = keyIter.next();
+                try {
+                    curType = targetThing.metadef.getString(curKey);
+                } catch (JSONException e) {
+                    continue;
+                }
+
+                curLine = inflater.inflate(R.layout.field_editor);
+
+                fieldBucket.addView(curLine)
+            }
 
             rootView.findViewById(R.id.btnSaveThing).setOnClickListener(saveButtonListener);
 
