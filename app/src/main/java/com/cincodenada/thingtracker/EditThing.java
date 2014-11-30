@@ -1,6 +1,8 @@
 package com.cincodenada.thingtracker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,6 +10,7 @@ import org.json.JSONObject;
 import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
 import com.cincodenada.thingtracker.ViewHappenings.ViewHappeningsFragment;
 
+import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -21,8 +24,11 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.os.Build;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 public class EditThing extends ActionBarActivity {
 
@@ -90,19 +96,22 @@ public class EditThing extends ActionBarActivity {
             targetThing = dbHelper.getThing(args.getLong("thing_id"));
 
             nameView = (EditText)rootView.findViewById(R.id.txtThingName);
-            metadata = (EditText)rootView.findViewById(R.id.txtThingMetadata);
 
             Iterator<String> keyIter = targetThing.metadef.keys();
-            LinearLayout fieldBucket = (LinearLayout) findViewById(R.id.thing_fields);
+            LinearLayout fieldBucket = (LinearLayout)rootView.findViewById(R.id.thing_fields);
 
-            LayoutInflater inflater;
             String curKey, curType;
             Object curVal;
             TextView curLabel;
             View curField;
 
-            fieldMap = new HashMap<String,View>();
-            inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            int numTypes = ThingFields.fieldTypes.size();
+            ArrayAdapter<String> fieldList = new ArrayAdapter<String>(
+                    (Context)getActivity(),
+                    android.R.layout.simple_spinner_item,
+                    ThingFields.fieldTypes.values().toArray(new String[numTypes])
+            );
+            ArrayList<String> keys = new ArrayList<String>(ThingFields.fieldTypes.keySet());
             while(keyIter.hasNext()) {
                 curKey = keyIter.next();
                 try {
@@ -111,9 +120,16 @@ public class EditThing extends ActionBarActivity {
                     continue;
                 }
 
-                curLine = inflater.inflate(R.layout.field_editor);
+                View curLine = inflater.inflate(R.layout.field_editor, null);
+                Spinner curSpin = (Spinner)curLine.findViewById(R.id.spinnerType);
+                curSpin.setAdapter(fieldList);
+                int typePos = keys.indexOf(curType);
+                if(typePos > -1) {
+                    curSpin.setSelection(typePos);
+                }
+                ((TextView)curLine.findViewById(R.id.fieldText)).setText(curKey);
 
-                fieldBucket.addView(curLine)
+                fieldBucket.addView(curLine);
             }
 
             rootView.findViewById(R.id.btnSaveThing).setOnClickListener(saveButtonListener);
