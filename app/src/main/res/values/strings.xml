@@ -24,5 +24,6 @@
     <string name="addminute">Add Minute</string>
     <string name="edit">Edit</string>
     <string name="empty">TextView</string>
+    <string name="addField">Add Field</string>
 
 </resources>

@@ -24,11 +24,13 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.os.Build;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class EditThing extends ActionBarActivity {
 
@@ -78,7 +80,12 @@ public class EditThing extends ActionBarActivity {
         private ThingsOpenHelper dbHelper;
         private Thing targetThing;
         EditText nameView;
-        EditText metadata;
+        EditText newField;
+        ViewGroup fieldBucket;
+
+        ArrayList<String> keyList;
+        ArrayAdapter<String> fieldList;
+        LayoutInflater myInflater;
 
         public EditThingFragment() {
         }
@@ -91,14 +98,17 @@ public class EditThing extends ActionBarActivity {
 
             Bundle args = getArguments();
 
+            myInflater = inflater;
+
             dbHelper = new ThingsOpenHelper(getActivity());
 
             targetThing = dbHelper.getThing(args.getLong("thing_id"));
 
             nameView = (EditText)rootView.findViewById(R.id.txtThingName);
+            nameView.setText(targetThing.getText());
 
             Iterator<String> keyIter = targetThing.metadef.keys();
-            LinearLayout fieldBucket = (LinearLayout)rootView.findViewById(R.id.thing_fields);
+            fieldBucket = (ViewGroup)rootView.findViewById(R.id.thing_fields);
 
             String curKey, curType;
             Object curVal;
@@ -106,12 +116,12 @@ public class EditThing extends ActionBarActivity {
             View curField;
 
             int numTypes = ThingFields.fieldTypes.size();
-            ArrayAdapter<String> fieldList = new ArrayAdapter<String>(
+            fieldList = new ArrayAdapter<String>(
                     (Context)getActivity(),
                     android.R.layout.simple_spinner_item,
                     ThingFields.fieldTypes.values().toArray(new String[numTypes])
             );
-            ArrayList<String> keys = new ArrayList<String>(ThingFields.fieldTypes.keySet());
+            keyList = new ArrayList<String>(ThingFields.fieldTypes.keySet());
             while(keyIter.hasNext()) {
                 curKey = keyIter.next();
                 try {
@@ -120,27 +130,67 @@ public class EditThing extends ActionBarActivity {
                     continue;
                 }
 
-                View curLine = inflater.inflate(R.layout.field_editor, null);
-                Spinner curSpin = (Spinner)curLine.findViewById(R.id.spinnerType);
-                curSpin.setAdapter(fieldList);
-                int typePos = keys.indexOf(curType);
-                if(typePos > -1) {
-                    curSpin.setSelection(typePos);
-                }
-                ((TextView)curLine.findViewById(R.id.fieldText)).setText(curKey);
-
-                fieldBucket.addView(curLine);
+                fieldBucket.addView(makeFieldView(curKey, curType));
             }
 
+            newField = (EditText)rootView.findViewById(R.id.newField);
+
             rootView.findViewById(R.id.btnSaveThing).setOnClickListener(saveButtonListener);
+            rootView.findViewById(R.id.btnAddThing).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String newThing = (String)ThingFields.fieldTypes.values().toArray()[0];
+                    fieldBucket.addView(makeFieldView(newField.getText().toString(),newThing));
+                    newField.setText("");
+                }
+            });
 
             return rootView;
         }
 
+        protected View makeFieldView(String key, String val) {
+            View curLine = myInflater.inflate(R.layout.field_editor, null);
+            Spinner curSpin = (Spinner)curLine.findViewById(R.id.spinnerType);
+            curSpin.setAdapter(fieldList);
+            int typePos = keyList.indexOf(val);
+            if(typePos > -1) {
+                curSpin.setSelection(typePos);
+            }
+            ((TextView)curLine.findViewById(R.id.fieldText)).setText(key);
+            ImageButton delbtn = (ImageButton)curLine.findViewById(R.id.btnDelField);
+            delbtn.setOnClickListener(delFieldListener);
+            delbtn.setTag(key);
+
+            return curLine;
+        }
+
+        protected OnClickListener delFieldListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View curLine = (View)v.getParent();
+                ((ViewGroup)curLine.getParent()).removeView(curLine);
+            }
+        };
+
         protected OnClickListener saveButtonListener = new OnClickListener() {
             public void onClick(View v) {
-                //TODO: Validate the JSON here
-                dbHelper.saveThing(targetThing.id, nameView.getText().toString(), metadata.getText().toString());
+                // Rebuild fields
+                targetThing.metadef = new JSONObject();
+                int numChildren = fieldBucket.getChildCount();
+                for(int curChild=0; curChild < numChildren; curChild++) {
+                    View curLine = fieldBucket.getChildAt(curChild);
+                    Spinner type = (Spinner)curLine.findViewById(R.id.spinnerType);
+                    TextView name = (TextView)curLine.findViewById(R.id.fieldText);
+                    try {
+                        targetThing.metadef.put(name.getText().toString(), keyList.get(type.getSelectedItemPosition()));
+                    } catch(JSONException e) {
+                        Log.e("fucker","Failed to save field for " + name.getText().toString());
+                        Toast.makeText(getActivity(), "Failed to save field for " + name.getText().toString(),Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                dbHelper.saveThing(targetThing.id, nameView.getText().toString(),targetThing.metadef.toString());
+                Log.d("fucker",targetThing.metadef.toString());
                 EditThingFragment.this.getActivity().finish();
             }
         };

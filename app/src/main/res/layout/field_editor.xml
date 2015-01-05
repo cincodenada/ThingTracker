@@ -16,6 +16,15 @@
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/spinnerType" />
+        android:id="@+id/spinnerType"
+        android:layout_weight="0" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnDelField"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/abc_ic_clear_normal"
+        android:layout_weight="0" />
 
 </LinearLayout>
