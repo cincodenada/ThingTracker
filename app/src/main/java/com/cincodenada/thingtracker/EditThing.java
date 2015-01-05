@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -81,10 +82,9 @@ public class EditThing extends ActionBarActivity {
         private Thing targetThing;
         EditText nameView;
         EditText newField;
-        ViewGroup fieldBucket;
+        ListView fieldBucket;
+        ArrayList<String> fieldList;
 
-        ArrayList<String> keyList;
-        ArrayAdapter<String> fieldList;
         LayoutInflater myInflater;
 
         public EditThingFragment() {
@@ -107,31 +107,38 @@ public class EditThing extends ActionBarActivity {
             nameView = (EditText)rootView.findViewById(R.id.txtThingName);
             nameView.setText(targetThing.getText());
 
-            Iterator<String> keyIter = targetThing.metadef.keys();
-            fieldBucket = (ViewGroup)rootView.findViewById(R.id.thing_fields);
+
+            fieldList = new ArrayList<String>();
+            if(targetThing.metadef.has("_order")) {
+                try {
+                    JSONArray order = targetThing.metadef.getJSONArray("_order");
+                    int numkeys = order.length();
+                    for (int i = 0; i < numkeys; i++) {
+                        fieldList.add(order.getString(i));
+                    }
+                } catch (JSONException e) {
+                    Log.e("fucker", "Couldn't parse order!");
+                    // We'll fill it up with the keys below
+                }
+            }
+            if(fieldList.size() == 0) {
+                Iterator<String> keyIter = targetThing.metadef.keys();
+                while(keyIter.hasNext()) {
+                    fieldList.add(keyIter.next());
+                }
+            }
+
+            fieldBucket = (ListView)rootView.findViewById(R.id.thing_fields);
+            fieldBucket.setAdapter(new FieldAdapter<String>(
+                    getActivity(),
+                    fieldList,
+                    targetThing.metadef
+            ));
 
             String curKey, curType;
             Object curVal;
             TextView curLabel;
             View curField;
-
-            int numTypes = ThingFields.fieldTypes.size();
-            fieldList = new ArrayAdapter<String>(
-                    (Context)getActivity(),
-                    android.R.layout.simple_spinner_item,
-                    ThingFields.fieldTypes.values().toArray(new String[numTypes])
-            );
-            keyList = new ArrayList<String>(ThingFields.fieldTypes.keySet());
-            while(keyIter.hasNext()) {
-                curKey = keyIter.next();
-                try {
-                    curType = targetThing.metadef.getString(curKey);
-                } catch (JSONException e) {
-                    continue;
-                }
-
-                fieldBucket.addView(makeFieldView(curKey, curType));
-            }
 
             newField = (EditText)rootView.findViewById(R.id.newField);
 
@@ -139,58 +146,24 @@ public class EditThing extends ActionBarActivity {
             rootView.findViewById(R.id.btnAddThing).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    String newThing = (String)ThingFields.fieldTypes.values().toArray()[0];
-                    fieldBucket.addView(makeFieldView(newField.getText().toString(),newThing));
-                    newField.setText("");
+                    if(!fieldList.contains(newField.getText())) {
+                        fieldList.add(newField.getText().toString());
+                    }
                 }
             });
 
             return rootView;
         }
 
-        protected View makeFieldView(String key, String val) {
-            View curLine = myInflater.inflate(R.layout.field_editor, null);
-            Spinner curSpin = (Spinner)curLine.findViewById(R.id.spinnerType);
-            curSpin.setAdapter(fieldList);
-            int typePos = keyList.indexOf(val);
-            if(typePos > -1) {
-                curSpin.setSelection(typePos);
-            }
-            ((TextView)curLine.findViewById(R.id.fieldText)).setText(key);
-            ImageButton delbtn = (ImageButton)curLine.findViewById(R.id.btnDelField);
-            delbtn.setOnClickListener(delFieldListener);
-            delbtn.setTag(key);
-
-            return curLine;
-        }
-
-        protected OnClickListener delFieldListener = new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View curLine = (View)v.getParent();
-                ((ViewGroup)curLine.getParent()).removeView(curLine);
-            }
-        };
-
         protected OnClickListener saveButtonListener = new OnClickListener() {
             public void onClick(View v) {
-                // Rebuild fields
-                targetThing.metadef = new JSONObject();
-                int numChildren = fieldBucket.getChildCount();
-                for(int curChild=0; curChild < numChildren; curChild++) {
-                    View curLine = fieldBucket.getChildAt(curChild);
-                    Spinner type = (Spinner)curLine.findViewById(R.id.spinnerType);
-                    TextView name = (TextView)curLine.findViewById(R.id.fieldText);
-                    try {
-                        targetThing.metadef.put(name.getText().toString(), keyList.get(type.getSelectedItemPosition()));
-                    } catch(JSONException e) {
-                        Log.e("fucker","Failed to save field for " + name.getText().toString());
-                        Toast.makeText(getActivity(), "Failed to save field for " + name.getText().toString(),Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                dbHelper.saveThing(targetThing.id, nameView.getText().toString(),targetThing.metadef.toString());
-                Log.d("fucker",targetThing.metadef.toString());
+                JSONObject fieldData = ((FieldAdapter<String>)fieldBucket.getAdapter()).getObject();
+                dbHelper.saveThing(
+                    targetThing.id,
+                    nameView.getText().toString(),
+                    fieldData.toString()
+                );
+                Log.d("fucker",fieldData.toString());
                 EditThingFragment.this.getActivity().finish();
             }
         };

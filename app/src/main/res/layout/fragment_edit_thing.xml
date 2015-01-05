@@ -38,42 +38,29 @@
             android:text="@string/thing_metadata"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/thing_fields"
+            android:layout_weight="1" />
+
         <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:id="@+id/editFields"
-            android:layout_weight="1">
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0">
 
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
+            <EditText
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_weight="0"
-                android:focusableInTouchMode="false"
-                android:id="@+id/thing_fields">
+                android:id="@+id/newField"
+                android:layout_weight="1" />
 
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
+            <Button
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0">
-
-                <EditText
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/newField"
-                    android:layout_weight="1" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/addField"
-                    android:id="@+id/btnAddThing" />
-            </LinearLayout>
+                android:text="@string/addField"
+                android:id="@+id/btnAddThing" />
         </LinearLayout>
 
         <Button
