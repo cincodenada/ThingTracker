@@ -12,6 +12,7 @@
     <string name="title_activity_add_happening">Add Happening</string>
     <string name="spacer">" "</string>
     <string name="view_happenings">View Happenings</string>
+    <string name="view_chart">View Chart</string>
     <string name="title_activity_view_happenings">View Happenings</string>
     <string name="hello_world">Hello world!</string>
     <string name="edit_thing">Edit Thing Fields</string>
@@ -25,5 +26,6 @@
     <string name="edit">Edit</string>
     <string name="empty">TextView</string>
     <string name="addField">Add Field</string>
+    <string name="title_activity_chart">ChartActivity</string>
 
 </resources>

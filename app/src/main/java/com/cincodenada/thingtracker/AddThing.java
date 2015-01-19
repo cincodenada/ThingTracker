@@ -132,6 +132,12 @@ public class AddThing extends Activity {
         startActivity(editThingIntent);
     }
 
+    protected void viewChart(long thingId) {
+        Intent viewChartIntent = new Intent(this, ChartActivity.class);
+        viewChartIntent.putExtra(ChartActivity.ARG_THING_ID, thingId);
+        startActivity(viewChartIntent);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -191,6 +197,9 @@ public class AddThing extends Activity {
                 return true;
             case R.id.mnu_thing_edit_thing:
                 editThing(selThing.id);
+                return true;
+            case R.id.mnu_thing_chart:
+                viewChart(selThing.id);
                 return true;
             default:
                 return super.onContextItemSelected(item);
