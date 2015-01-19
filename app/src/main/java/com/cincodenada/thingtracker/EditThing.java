@@ -10,6 +10,8 @@ import org.json.JSONObject;
 
 import com.cincodenada.thingtracker.ThingsOpenHelper.Thing;
 import com.cincodenada.thingtracker.ViewHappenings.ViewHappeningsFragment;
+import com.mobeta.android.dslv.DragSortController;
+import com.mobeta.android.dslv.DragSortListView;
 
 import android.content.Context;
 import android.support.v7.app.ActionBarActivity;
@@ -82,8 +84,9 @@ public class EditThing extends ActionBarActivity {
         private Thing targetThing;
         EditText nameView;
         EditText newField;
-        ListView fieldBucket;
+        DragSortListView fieldBucket;
         ArrayList<String> fieldList;
+        FieldAdapter fieldAdapter;
 
         LayoutInflater myInflater;
 
@@ -128,12 +131,29 @@ public class EditThing extends ActionBarActivity {
                 }
             }
 
-            fieldBucket = (ListView)rootView.findViewById(R.id.thing_fields);
-            fieldBucket.setAdapter(new FieldAdapter<String>(
+            fieldBucket = (DragSortListView)rootView.findViewById(R.id.thing_fields);
+            fieldAdapter = new FieldAdapter<String>(
                     getActivity(),
                     fieldList,
                     targetThing.metadef
-            ));
+            );
+            fieldBucket.setAdapter(fieldAdapter);
+            fieldBucket.setDropListener(new DragSortListView.DropListener() {
+                @Override
+                public void drop(int from, int to) {
+                    if(from != to) {
+                        Object key = fieldAdapter.getItem(from);
+                        fieldAdapter.remove(key);
+                        fieldAdapter.insert(key, to);
+                    }
+                }
+            });
+            fieldBucket.setRemoveListener(new DragSortListView.RemoveListener() {
+                @Override
+                public void remove(int which) {
+                    fieldAdapter.remove(fieldAdapter.getItem(which));
+                }
+            });
 
             String curKey, curType;
             Object curVal;
@@ -159,9 +179,9 @@ public class EditThing extends ActionBarActivity {
             public void onClick(View v) {
                 JSONObject fieldData = ((FieldAdapter<String>)fieldBucket.getAdapter()).getObject();
                 dbHelper.saveThing(
-                    targetThing.id,
-                    nameView.getText().toString(),
-                    fieldData.toString()
+                        targetThing.id,
+                        nameView.getText().toString(),
+                        fieldData.toString()
                 );
                 Log.d("fucker",fieldData.toString());
                 EditThingFragment.this.getActivity().finish();
