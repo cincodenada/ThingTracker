@@ -103,6 +103,7 @@ public class ChartActivity extends ActionBarActivity {
             dbHelper = new ThingsOpenHelper(getActivity());
 
             theHaps = dbHelper.getHappenings(args.getLong(ARG_THING_ID), args.getBoolean(ARG_ALL_SUBTHINGS));
+            HashMap<Long,ThingsOpenHelper.Thing> thingCache = new HashMap<>();
 
             HashMap<Long,HashMap<String,Integer>> serieses = new LinkedHashMap<Long,HashMap<String,Integer>>();
             String curCat;
@@ -113,6 +114,14 @@ public class ChartActivity extends ActionBarActivity {
                 Log.d("Fucker",curCat);
                 if(allCats.indexOf(curCat) == -1) {
                     allCats.add(curCat);
+                }
+
+                ThingsOpenHelper.Thing curThing;
+                if(thingCache.containsKey(theHap.thing_id)) {
+                    curThing = thingCache.get(theHap.thing_id);
+                } else {
+                    curThing = dbHelper.getThing(theHap.thing_id);
+                    thingCache.put(theHap.thing_id, curThing);
                 }
 
                 if(serieses.containsKey(theHap.thing_id)) {
@@ -134,10 +143,26 @@ public class ChartActivity extends ActionBarActivity {
 
             GraphView graph = (GraphView)rootView.findViewById(R.id.graph);
 
+            String[] hexColors = {
+                "#a6cee3",
+                "#1f78b4",
+                "#b2df8a",
+                "#33a02c",
+                "#fb9a99",
+                "#e31a1c",
+                "#fdbf6f",
+                "#ff7f00",
+                "#cab2d6",
+                "#6a3d9a",
+                "#ffff99",
+                "#b15928",
+            };
+
             Integer numSeries = 0;
             for(Map.Entry<Long,HashMap<String,Integer>> entry: serieses.entrySet()) {
                 DataPoint[] curList = new DataPoint[allCats.size()];
                 HashMap<String,Integer> thingSeries = entry.getValue();
+
                 Integer index = 0;
                 for(String cat: allCats) {
                     if(thingSeries.containsKey(cat)) {
@@ -150,7 +175,10 @@ public class ChartActivity extends ActionBarActivity {
                     index++;
                 }
 
-                BarGraphSeries<DataPoint> newSeries = new BarGraphSeries<>(curList);
+                LineGraphSeries<DataPoint> newSeries = new LineGraphSeries<>(curList);
+                newSeries.setTitle(thingCache.get(entry.getKey()).getText());
+                Integer curcol = numSeries % hexColors.length;
+                newSeries.setColor(Color.parseColor(hexColors[curcol]));
 
                 Log.d("Fucker", curList.toString());
 
@@ -161,6 +189,8 @@ public class ChartActivity extends ActionBarActivity {
                     break;
                 }
             }
+
+            graph.getLegendRenderer().setVisible(true);
 
             return rootView;
         }
