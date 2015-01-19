@@ -34,4 +34,5 @@ dependencies {
     compile files('libs/commons-lang3-3.2.1.jar')
     compile project(':libraries:drag-sort-listview:library')
     compile "com.androidplot:androidplot-core:0.6.1"
+    compile 'com.jjoe64:graphview:4.0.0'
 }

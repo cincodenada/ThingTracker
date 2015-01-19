@@ -132,48 +132,35 @@ public class ChartActivity extends ActionBarActivity {
             }
             Collections.sort(allCats, Collator.getInstance());
 
-            XYPlot plot = (XYPlot)rootView.findViewById(R.id.mySimpleXYPlot);
-
-            // Create a formatter to use for drawing a series using LineAndPointRenderer
-            // and configure it from xml:
-            LineAndPointFormatter series1Format = new LineAndPointFormatter();
-            series1Format.setPointLabelFormatter(new PointLabelFormatter());
-            series1Format.configure(getActivity().getApplicationContext(),
-                    R.xml.line_point_formatter_with_plf1);
-
-            BarFormatter formatter1 = new BarFormatter(Color.argb(200, 100, 150, 100), Color.LTGRAY);
+            GraphView graph = (GraphView)rootView.findViewById(R.id.graph);
 
             Integer numSeries = 0;
             for(Map.Entry<Long,HashMap<String,Integer>> entry: serieses.entrySet()) {
-                ArrayList<Integer> curList = new ArrayList<Integer>();
+                DataPoint[] curList = new DataPoint[allCats.size()];
                 HashMap<String,Integer> thingSeries = entry.getValue();
+                Integer index = 0;
                 for(String cat: allCats) {
                     if(thingSeries.containsKey(cat)) {
-                        curList.add(thingSeries.get(cat));
+                        curList[index] = new DataPoint(index, thingSeries.get(cat));
                     } else {
-                        curList.add(null);
+                        curList[index] = new DataPoint(index, 0);
                     }
+                    Log.d("Fucker", index.toString());
+                    Log.d("Fucker", curList[index].toString());
+                    index++;
                 }
 
-                XYSeries newSeries = new SimpleXYSeries(
-                        curList,          // SimpleXYSeries takes a List so turn our array into a List
-                        SimpleXYSeries.ArrayFormat.Y_VALS_ONLY, // Y_VALS_ONLY means use the element index as the x value
-                        entry.getKey().toString()
-                );
+                BarGraphSeries<DataPoint> newSeries = new BarGraphSeries<>(curList);
+
                 Log.d("Fucker", curList.toString());
 
-                plot.addSeries(newSeries, formatter1);
+                graph.addSeries(newSeries);
 
                 numSeries++;
                 if(numSeries > 4) {
                     break;
                 }
             }
-
-            // reduce the number of range labels
-            plot.setTicksPerRangeLabel(3);
-            plot.getGraphWidget().setDomainLabelOrientation(-45);
-            plot.setDomainBoundaries(0,allCats.size(),BoundaryMode.FIXED);
 
             return rootView;
         }
