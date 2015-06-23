@@ -3,7 +3,9 @@ package com.cincodenada.thingtracker;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.speech.RecognizerIntent;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
@@ -14,7 +16,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.util.Log;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -23,6 +26,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -191,9 +196,35 @@ public class WearAdd extends Activity {
             case R.id.mnu_thing_edit_thing:
                 editThing(selThing.id);
                 return true;
+            case R.id.mnu_backup:
+                backupDb();
+                return true;
+            case R.id.mnu_restore:
+                restoreDb();
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    public void backupDb() {
+        File file = new File("/data/data/com.cincodenada.thingtracker/databases/");
+        try {
+            File[] list = file.listFiles();
+            Log.d("Fucker", file.toString());
+            Log.d("Fucker", String.valueOf(list.length) + " files");
+            if (list != null)
+                for (int i=0; i<list.length; ++i) {
+                    Log.d("Fucker", list[i].getName());
+                }
+        } catch(Exception e) {
+            Log.e("Fucker", "Can't list " + file.toString() + ": " + e.toString());
+        }
+        dbHelper.backup();
+    }
+
+    public void restoreDb() {
+        dbHelper.restore();
     }
 
     @Override
