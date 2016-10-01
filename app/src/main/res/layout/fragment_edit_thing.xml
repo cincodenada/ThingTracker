@@ -15,6 +15,14 @@
         android:layout_alignParentTop="true"
         android:orientation="vertical" >
 
+        <Button
+            android:id="@+id/btnSaveThing"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_gravity="bottom"
+            android:layout_weight="0"
+            android:text="Save" />
+
         <TextView
             android:id="@+id/lblThingName"
             android:layout_width="wrap_content"
@@ -45,14 +53,6 @@
             android:layout_weight="1"
             android:ems="10"
             android:inputType="textMultiLine" />
-
-        <Button
-            android:id="@+id/btnSaveThing"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_gravity="bottom"
-            android:layout_weight="0"
-            android:text="Save" />
 
     </LinearLayout>
 
