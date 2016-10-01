@@ -192,9 +192,16 @@ public class AddThing extends Activity {
             case R.id.mnu_thing_edit_thing:
                 editThing(selThing.id);
                 return true;
+            case R.id.mnu_backup:
+                backupDb();
+                return true;
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+    public void backupDb() {
+        dbHelper.backup();
     }
 
     @Override

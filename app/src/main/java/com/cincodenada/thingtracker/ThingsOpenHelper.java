@@ -1,5 +1,11 @@
 package com.cincodenada.thingtracker;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +22,7 @@ import com.cincodenada.thingtracker.TwoLineArrayAdapter;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
@@ -219,6 +226,50 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         int numdel = db.delete(HAPPENINGLIST_TABLE_NAME,"id = ?",params);
         return (numdel > 0);
+	}
+
+	public void backup() {
+		SQLiteDatabase db = this.getReadableDatabase();
+		String[] noparams = {};
+		db.rawQuery("PRAGMA journal_mode = DELETE;",noparams);
+		try {
+			Log.d("Fucker", "Opening files...");
+			InputStream input = new FileInputStream("/data/data/com.cincodenada.thingtracker/databases/" + DATABASE_NAME);
+			OutputStream output = new FileOutputStream("/sdcard/" + DATABASE_NAME + ".db");
+			byte[] buffer = new byte[1024];
+			int length;
+			while((length=input.read(buffer)) > 0) {
+				output.write(buffer, 0, length);
+			}
+			output.flush();
+			output.close();
+			input.close();
+		} catch(IOException e) {
+			Log.e("Fucker","Error:" + e.toString());
+		}
+		db.rawQuery("PRAGMA journal_mode = WAL;", noparams);
+	}
+
+	public void restore() {
+		SQLiteDatabase db = this.getReadableDatabase();
+		String[] noparams = {};
+		db.rawQuery("PRAGMA journal_mode = DELETE;",noparams);
+		try {
+			Log.d("Fucker", "Opening files...");
+			InputStream input = new FileInputStream("/sdcard/" + DATABASE_NAME + ".db");
+			OutputStream output = new FileOutputStream("/data/data/com.cincodenada.thingtracker/databases/" + DATABASE_NAME);
+			byte[] buffer = new byte[1024];
+			int length;
+			while((length=input.read(buffer)) > 0) {
+				output.write(buffer, 0, length);
+			}
+			output.flush();
+			output.close();
+			input.close();
+		} catch(IOException e) {
+			Log.e("Fucker","Error:" + e.toString());
+		}
+		db.rawQuery("PRAGMA journal_mode = WAL;", noparams);
     }
 
     public class Thing {
