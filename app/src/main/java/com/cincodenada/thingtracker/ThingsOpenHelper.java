@@ -90,11 +90,14 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
 		return db.insert(THINGLIST_TABLE_NAME, null, values);
 	}
 	
-	public long saveThing(Long id, String text, String metadef) {
+	public long saveThing(Long id, String text, String metadefval) {
 		String[] params = {Long.toString(id)};
 		SQLiteDatabase db = this.getReadableDatabase();
 		ContentValues values = new ContentValues();
-		String metadefval = metadef.toString();
+		//String metadefval = metadef.toString();
+		if (metadefval == "") {
+			metadefval = "{\"Topped\":\"yesno\",\"Slanty\":\"yesno\",\"Description\":\"text\",\"Really Slanty\":\"yesno\"}";
+		}
 		values.put("DATA", text);
 		values.put("METADEF",metadefval);
 		return db.update(THINGLIST_TABLE_NAME, values, "ID = ?", params);
