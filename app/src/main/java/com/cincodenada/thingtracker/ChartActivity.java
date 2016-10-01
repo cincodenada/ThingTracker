@@ -178,14 +178,15 @@ public class ChartActivity extends ActionBarActivity {
                     index++;
                 }
 
-                LineGraphSeries<DataPoint> newSeries = new LineGraphSeries<>(curList);
+                BarGraphSeries<DataPoint> newSeries = new BarGraphSeries<>(curList);
                 newSeries.setTitle(thingCache.get(entry.getKey()).getText());
                 Integer curcol = numSeries % hexColors.length;
                 newSeries.setColor(Color.parseColor(hexColors[curcol]));
+                newSeries.setSpacing(5);
 
                 Log.d("Fucker", curList.toString());
 
-                graph.addSeries(newSeries);
+                //graph.addSeries(newSeries);
 
                 numSeries++;
                 if(numSeries > 4) {
@@ -193,29 +194,53 @@ public class ChartActivity extends ActionBarActivity {
                 }
             }
 
+
+            BarGraphSeries<DataPoint> s1 = new BarGraphSeries<DataPoint>(new DataPoint[]{
+                    new DataPoint(0, 1),
+                    new DataPoint(1, 1),
+            });
+            s1.setColor(Color.parseColor(hexColors[0]));
+            graph.addSeries(s1);
+
+            BarGraphSeries<DataPoint> s2 = new BarGraphSeries<DataPoint>(new DataPoint[]{
+                    new DataPoint(0, 0),
+                    new DataPoint(1, 1),
+            });
+            s2.setColor(Color.parseColor(hexColors[1]));
+            graph.addSeries(s2);
+
+            BarGraphSeries<DataPoint> s3 = new BarGraphSeries<DataPoint>(new DataPoint[]{
+                    new DataPoint(0, 2),
+            });
+            s3.setColor(Color.parseColor(hexColors[2]));
+            graph.addSeries(s3);
+
             graph.getLegendRenderer().setVisible(true);
+            //graph.getGridLabelRenderer().setLabelFormatter(new CustomFormatter(allCats));
+            graph.getViewport().setScrollable(true);
+            graph.getViewport().setScalable(true);
 
             return rootView;
         }
 
-        public class CustomFormat extends NumberFormat {
+        public class CustomFormatter extends DefaultLabelFormatter {
             List<String> valueList;
-            public CustomFormat(List<String> newvalueList) {
+            public CustomFormatter(List<String> newvalueList) {
                 valueList = newvalueList;
             }
+            
             @Override
-            public StringBuffer format(double value, StringBuffer buffer, FieldPosition field) {
-                return new StringBuffer(valueList.get((int)value));
-            }
-
-            @Override
-            public StringBuffer format(long value, StringBuffer buffer, FieldPosition field) {
-                throw new UnsupportedOperationException("Not yet implemented.");
-            }
-
-            @Override
-            public Number parse(String string, ParsePosition position) {
-                throw new UnsupportedOperationException("Not yet implemented.");
+            public String formatLabel(double value, boolean isValueX) {
+                if(isValueX) {
+                    int intVal = (int)Math.round(value);
+                    if(intVal == value && intVal > 0 && intVal < valueList.size()) {
+                        return valueList.get(intVal);
+                    } else {
+                        return "";
+                    }
+                } else {
+                    return super.formatLabel(value, isValueX);
+                }
             }
         }
     }
