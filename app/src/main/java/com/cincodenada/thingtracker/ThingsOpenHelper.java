@@ -1,5 +1,10 @@
 package com.cincodenada.thingtracker;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -221,6 +226,16 @@ public class ThingsOpenHelper extends SQLiteOpenHelper {
         return (numdel > 0);
     }
 
+    public void backup() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("PRAGMA journal_mode = DELETE;");
+        try {
+            InputStream input = new FileInputStream("/data/data/com.cincodenada.thingtracker/databases/" + DATABASE_NAME + ".db");
+            OutputStream output = new FileOutputStream("/sdcard/" + DATABASE_NAME + ".db");
+            output.write(input.read());
+        } catch(IOException e) {
+        }
+    }
     public class Thing {
         long id;
         long parent_id;
