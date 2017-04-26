@@ -29,6 +29,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 public class ThingsOpenHelper extends SQLiteOpenHelper {

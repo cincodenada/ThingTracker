@@ -2,10 +2,14 @@ package com.cincodenada.thingtracker;
 
 import java.util.ArrayList;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -36,6 +40,10 @@ public class AddThing extends Activity {
     private long prevThingId = 0;
     private ArrayList<ThingsOpenHelper.Thing> thingList;
     private ArrayAdapter<ThingsOpenHelper.Thing> thingArray;
+
+    private static final int MY_PERMREQ_BACKUP = 1;
+    private static final int MY_PERMREQ_RESTORE = 2;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,6 +200,9 @@ public class AddThing extends Activity {
             case R.id.mnu_thing_edit_thing:
                 editThing(selThing.id);
                 return true;
+            case R.id.mnu_restore:
+                restoreDb();
+                return true;
             case R.id.mnu_backup:
                 backupDb();
                 return true;
@@ -200,9 +211,48 @@ public class AddThing extends Activity {
         }
     }
 
+    public void restoreDb() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)==
+                PackageManager.PERMISSION_GRANTED) {
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMREQ_RESTORE);
+        }
+
+        dbHelper.restore();
+    }
+
     public void backupDb() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)==
+                PackageManager.PERMISSION_GRANTED) {
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMREQ_BACKUP);
+        }
+
         dbHelper.backup();
     }
+
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMREQ_BACKUP: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    backupDb();
+                } // TODO: Fail gracefully
+                return;
+            }
+            case MY_PERMREQ_RESTORE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    restoreDb();
+                } // TODO: Fail gracefully
+                return;
+            }
+        }
+    }
+
+
 
     @Override
     public void onBackPressed() {
